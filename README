@@ -1,0 +1,10 @@
+G4_custom_matscan
+=================
+
+# History
+
+Code evolved from g01 Geant4 example 
+
+#Goal
+
+List, in an ordered manner, the thickness, material and logical volume name, to be used for region definition 
