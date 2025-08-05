@@ -8,6 +8,8 @@
 /run/verbose 2
 
 # Shoot along Z direction
+/vis/ASCIITree/set/outFile geo.txt
+/vis/drawTree 3
 /run/beamOn 0
 /gun/direction 1 0 0
 /run/beamOn 1
