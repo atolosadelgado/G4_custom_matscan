@@ -9,7 +9,7 @@
 /vis/verbose errors
 #
 # Draw geometry:
-/vis/drawVolume
+/vis/drawVolume ! ! 3
 #
 # Specify view angle:
 #/vis/viewer/set/viewpointThetaPhi 90. 0.
