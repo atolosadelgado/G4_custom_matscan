@@ -93,6 +93,9 @@ int main(int argc, char** argv)
   parser.SetOverlapCheck(false);
   parser.Read(argv[1]);
 
+  // std::cout << "HGCal pv... " << parser.GetPhysVolume("HGCal");
+  // std::cin.ignore();
+
   if (argc > 4) {
     G4cout << "Error! Too many arguments!" << G4endl;
     G4cout << G4endl;
@@ -106,7 +109,7 @@ int main(int argc, char** argv)
   G01DetectorConstruction * user_detector_constructor = new G01DetectorConstruction();
   G4VPhysicalVolume * world_pv = parser.GetWorldVolume();
   // load the whole GDML or just a subdetector
-  G4String detector_pv_name = "";
+  G4String detector_pv_name = "HGCal";
   G4int maxlevel = 4;
   bool set_world = (0==detector_pv_name.size());
   if( set_world ) {
@@ -116,9 +119,9 @@ int main(int argc, char** argv)
   else{
 
     std::cout << "placing subdetectors  ..." << std::endl;
-//     G4VPhysicalVolume * detector_pv = parser.GetPhysVolume(detector_pv_name);
-//     user_detector_constructor->SetDetectorPV(detector_pv);
-    user_detector_constructor->ExtractAndPlaceSubDet(world_pv, maxlevel, detector_pv_name);
+    G4VPhysicalVolume * detector_pv = parser.GetPhysVolume(detector_pv_name);
+    user_detector_constructor->SetDetectorPV(detector_pv);
+    // user_detector_constructor->ExtractAndPlaceSubDet(world_pv, maxlevel, detector_pv_name);
   }
 
 
@@ -192,9 +195,9 @@ int main(int argc, char** argv)
            ->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume());
     */
 
-    parser.SetRegionExport(false);
+    parser.SetRegionExport(true);
 
-    parser.SetMaxExportLevel(3);
+    // parser.SetMaxExportLevel(3);
     parser.SetOutputFileOverwrite(true);
     //     parser.SetEnergyCutsExport(true);
     //     parser.SetOutputFileOverwrite(true);
