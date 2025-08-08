@@ -351,15 +351,15 @@ void define_subregions()
 
   // 2. Define subregion of EE for sensitive parts made of silicon
   {
-    auto HGCalEEsensitiveRegion = new G4Region("HGCalEEsensitiveRegion");
+    auto HGCalEEsiliconRegion = new G4Region("HGCalEEsiliconRegion");
     // assign cuts
-    auto HGCalEEsensitiveCuts = new G4ProductionCuts();
+    auto HGCalEEsiliconCuts = new G4ProductionCuts();
     // Set cut values (in mm)
-    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-    HGCalEEsensitiveRegion->SetProductionCuts(HGCalEEsensitiveCuts);
+    HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalEEsiliconRegion->SetProductionCuts(HGCalEEsiliconCuts);
     // ----------------------------------------------------------
     // assign root volumes
     const G4Material * si_material = G4Material::GetMaterial("Silicon");
@@ -367,7 +367,55 @@ void define_subregions()
     for (const auto& lv : *lv_store)
     {
       if( lv->GetMaterial() == si_material )
-        HGCalEEsensitiveRegion->AddRootLogicalVolume(lv);
+        HGCalEEsiliconRegion->AddRootLogicalVolume(lv);
+    }
+  }
+
+
+  // 3. Define subregion of EE for passive parts near silicon
+  // -- TODO: this approach is conservative since even volumes further from the silicon
+  // --       are included here. Volumes far away from the silicon may have higher threshold
+  {
+    auto HGCalEEkaptonCopperRegion = new G4Region("HGCalEEkaptonCopperRegion");
+    // assign cuts
+    auto HGCalEEkaptonCopperCuts = new G4ProductionCuts();
+    // Set cut values (in mm)
+    HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalEEkaptonCopperRegion->SetProductionCuts(HGCalEEkaptonCopperCuts);
+    // ----------------------------------------------------------
+    // assign root volumes
+    const G4Material * kapton_material = G4Material::GetMaterial("Kapton");
+    const G4Material * copper_material = G4Material::GetMaterial("Copper");
+    G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+    for (const auto& lv : *lv_store)
+    {
+      if( lv->GetMaterial() == kapton_material || lv->GetMaterial() == copper_material )
+        HGCalEEkaptonCopperRegion->AddRootLogicalVolume(lv);
+    }
+  }
+
+  // 4. Define subregion of EE for absorber WCu
+  {
+    auto HGCalEEwcuRegion = new G4Region("HGCalEEwcuRegion");
+    // assign cuts
+    auto HGCalEEwcuCuts = new G4ProductionCuts();
+    // Set cut values (in mm)
+    HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalEEwcuRegion->SetProductionCuts(HGCalEEwcuCuts);
+    // ----------------------------------------------------------
+    // assign root volumes
+    const G4Material * si_material = G4Material::GetMaterial("WCu");
+    G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+    for (const auto& lv : *lv_store)
+    {
+      if( lv->GetMaterial() == si_material )
+        HGCalEEwcuRegion->AddRootLogicalVolume(lv);
     }
   }
 }
