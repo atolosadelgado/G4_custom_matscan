@@ -50,6 +50,8 @@
 
 #include <vector>
 
+void print_lv_and_material_info();
+
 void print_aux(const G4GDMLAuxListType* auxInfoList, G4String prepend = "|")
 {
   for (std::vector<G4GDMLAuxStructType>::const_iterator iaux = auxInfoList->begin();
@@ -173,6 +175,8 @@ int main(int argc, char** argv)
 
   runManager->BeamOn(0);
 
+  print_lv_and_material_info();
+
   // example of writing out
 
   if (argc >= 3) {
@@ -226,3 +230,79 @@ int main(int argc, char** argv)
 
   return 0;
 }
+
+
+#include <G4LogicalVolumeStore.hh>
+#include <G4LogicalVolume.hh>
+#include <G4Material.hh>
+
+#include <map>
+#include <vector>
+#include <string>
+#include <iostream>
+
+void print_lv_and_material_info()
+{
+  G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+
+  // map that links a material with a vector of lv
+  std::map<std::string, std::vector<std::string>> material_to_lv_map;
+
+  for (const auto& lv : *lv_store)
+  {
+    std::string lv_name = lv->GetName();
+    G4Material* material = lv->GetMaterial();
+
+    std::string material_name = material ? material->GetName() : "NoMaterial";
+
+    // insert lv name according to its material name
+    material_to_lv_map[material_name].push_back(lv_name);
+  }
+
+  // print map content
+  std::cout << "\nLogical volumes per material:\n";
+  for (const auto& pair : material_to_lv_map)
+  {
+    std::cout << "Material: " << pair.first << "\n";
+    for (const auto& name : pair.second)
+    {
+      std::cout << "  - " << name << "\n";
+    }
+  }
+
+  std::cout << "\nNumber of Logical Volumes per Material:\n";
+  for (const auto& pair : material_to_lv_map)
+  {
+    std::cout << pair.first << "\t" << pair.second.size() << std::endl;
+  }
+
+  // // create an out file with the lv names for each material
+  // for (const auto& pair : material_to_lv_map)
+  // {
+  //   std::string material_name = pair.first;
+  //   std::vector<std::string> lv_names = pair.second;
+  //
+  //   // create safe name, removing spaces or slashes
+  //   std::string filename = material_name;
+  //   std::replace(filename.begin(), filename.end(), ' ', '_');      // remove spaces
+  //   std::replace(filename.begin(), filename.end(), '/', '_');      // remove slashes
+  //   filename = "hgcal_lv_madeof_" + filename + ".txt";
+  //
+  //   std::ofstream outfile(filename);
+  //   if (!outfile)
+  //   {
+  //     std::cerr << "Error: cannot open " << filename << "\n";
+  //     continue;
+  //   }
+  //
+  //   outfile << "Logical Volumes with material: " << material_name << "\n\n";
+  //   for (const auto& name : lv_names)
+  //   {
+  //     outfile << "- " << name << "\n";
+  //   }
+  //
+  //   outfile.close();
+  // }
+
+}
+
