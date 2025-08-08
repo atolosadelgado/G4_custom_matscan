@@ -52,6 +52,8 @@
 
 void print_lv_and_material_info();
 
+void define_subregions();
+
 void print_aux(const G4GDMLAuxListType* auxInfoList, G4String prepend = "|")
 {
   for (std::vector<G4GDMLAuxStructType>::const_iterator iaux = auxInfoList->begin();
@@ -130,7 +132,6 @@ int main(int argc, char** argv)
   runManager->SetUserInitialization(user_detector_constructor);
   runManager->SetUserInitialization(new FTFP_BERT);
   runManager->SetUserInitialization(new G01ActionInitialization());
-
   runManager->Initialize();
 
   // Initialize visualization
@@ -173,9 +174,12 @@ int main(int argc, char** argv)
   //
   ////////////////////////////////////////////////////////////////////////
 
-  runManager->BeamOn(0);
+  define_subregions();
 
-  print_lv_and_material_info();
+
+  runManager->BeamOn(0);
+  // print_lv_and_material_info();
+
 
   // example of writing out
 
@@ -306,3 +310,64 @@ void print_lv_and_material_info()
 
 }
 
+#include "G4RegionStore.hh"
+
+void define_subregions()
+{
+  // // Print regions
+  // G4RegionStore* region_store = G4RegionStore::GetInstance();
+  //
+  // for (const auto& region : *region_store)
+  // {
+  //   std::cout << "Region: " << region->GetName() << std::endl;
+  //
+  //   int number_of_lv = region->GetNumberOfRootVolumes();
+  //   auto lv_region_it = region->GetRootLogicalVolumeIterator();
+  //
+  //   for (int i = 0; i < number_of_lv; ++i)
+  //   {
+  //     G4LogicalVolume* lv = *(lv_region_it + i);
+  //     std::cout << "  - " << lv->GetName() << std::endl;
+  //   }
+  // }
+
+  // 1. Define master region of HGCal
+  {
+    auto HGCalRegion = new G4Region("HGCalRegion");
+    // assign cuts
+    auto HGCalcuts = new G4ProductionCuts();
+    // Set cut values (in mm)
+    HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalRegion->SetProductionCuts(HGCalcuts);
+    // ----------------------------------------------------------
+    // assign root volumes
+    G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+    auto HGCal_lv = lv_store->GetVolume("HGCal");
+    HGCalRegion->AddRootLogicalVolume(HGCal_lv);
+  }
+
+  // 2. Define subregion of EE for sensitive parts made of silicon
+  {
+    auto HGCalEEsensitiveRegion = new G4Region("HGCalEEsensitiveRegion");
+    // assign cuts
+    auto HGCalEEsensitiveCuts = new G4ProductionCuts();
+    // Set cut values (in mm)
+    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalEEsensitiveCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalEEsensitiveRegion->SetProductionCuts(HGCalEEsensitiveCuts);
+    // ----------------------------------------------------------
+    // assign root volumes
+    const G4Material * si_material = G4Material::GetMaterial("Silicon");
+    G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+    for (const auto& lv : *lv_store)
+    {
+      if( lv->GetMaterial() == si_material )
+        HGCalEEsensitiveRegion->AddRootLogicalVolume(lv);
+    }
+  }
+}
