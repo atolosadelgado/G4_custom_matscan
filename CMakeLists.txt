@@ -55,7 +55,9 @@ include(${ROOT_USE_FILE})
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(load_gdml load_gdml.cc ${sources} ${headers})
+add_executable(hgcal_sim hgcal_sim.cc ${sources} ${headers})
 target_link_libraries(load_gdml ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+target_link_libraries(hgcal_sim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 
 #----------------------------------------------------------------------------
