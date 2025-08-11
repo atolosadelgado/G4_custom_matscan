@@ -15,7 +15,8 @@
 #include <vector>
 
 
-void define_subregions();
+void define_hgcal_subregions();
+void define_original_hgcal_region();
 
 
 int main(int argc, char** argv)
@@ -79,16 +80,21 @@ int main(int argc, char** argv)
 
 
 
-  define_subregions();
+  if( std::string( argv[2] ) == "original_cuts")
+    define_original_hgcal_region();
+  else if( std::string( argv[2] ) == "new_cuts")
+    define_hgcal_subregions();
+  else
+    std::cout << "Warning, no regions are being defined\n";
 
 
   runManager->BeamOn(0);
 
 
-  if (argc == 3)  // batch mode
+  if (argc == 4)  // batch mode
   {
     G4String command = "/control/execute ";
-    G4String fileName = argv[2];
+    G4String fileName = argv[3];
     UImanager->ApplyCommand(command + fileName);
   }
   else  // interactive mode
@@ -111,7 +117,7 @@ int main(int argc, char** argv)
 #include <G4Material.hh>
 #include "G4RegionStore.hh"
 
-void define_subregions()
+void define_hgcal_subregions()
 {
 
   // 1. Define master region of HGCal
@@ -201,4 +207,25 @@ void define_subregions()
         HGCalEEwcuRegion->AddRootLogicalVolume(lv);
     }
   }
+}
+
+void define_original_hgcal_region()
+{
+
+    double cut_in_mm = 0.03;
+    auto HGCalRegion = new G4Region("HGCalRegion");
+    // assign cuts
+    auto HGCalcuts = new G4ProductionCuts();
+    // Set cut values (in mm)
+    HGCalcuts->SetProductionCut(cut_in_mm * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalcuts->SetProductionCut(cut_in_mm * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalcuts->SetProductionCut(cut_in_mm * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalcuts->SetProductionCut(cut_in_mm * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalRegion->SetProductionCuts(HGCalcuts);
+    // ----------------------------------------------------------
+    // assign root volumes
+    G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+    auto HGCal_lv = lv_store->GetVolume("HGCal");
+    HGCalRegion->AddRootLogicalVolume(HGCal_lv);
+
 }

@@ -108,11 +108,12 @@ void YourRunAction::EndOfRunAction(const G4Run*) {
 
 void YourRunAction::MoveProfileToRunAction(std::unique_ptr<tools::histo::h1d> h) {
     runEnergyProfileZ_vector.push_back(std::move(h));
+    std::cout << "." << std::flush;
 
-    std::cout << "\t New Histogram!\n";
-    const tools::histo::h1d& hist = *(runEnergyProfileZ_vector.back());
-    G4int nbins = hist.GetNbins();
-    for(int i = 1; i<nbins; ++i){
-      std::cout << hist.GetBinCenter(i) << '\t' << hist.GetBinContent(i) << std::endl;
-    }
+    // std::cout << "\t New Histogram!\n";
+    // const tools::histo::h1d& hist = *(runEnergyProfileZ_vector.back());
+    // G4int nbins = hist.GetNbins();
+    // for(int i = 1; i<nbins; ++i){
+    //   std::cout << hist.GetBinCenter(i) << '\t' << hist.GetBinContent(i) << std::endl;
+    // }
 }
