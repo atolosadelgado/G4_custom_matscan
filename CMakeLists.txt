@@ -23,10 +23,23 @@ include(${Geant4_USE_FILE})
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 #
-include_directories(${PROJECT_SOURCE_DIR}/include 
-                    ${Geant4_INCLUDE_DIR})
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+include_directories(${PROJECT_SOURCE_DIR}/include
+                    ${Geant4_INCLUDE_DIR}
+                    )
+
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/G01PrimaryGeneratorAction.cc
+                  ${PROJECT_SOURCE_DIR}/src/YourActionInitialization.cc
+                  ${PROJECT_SOURCE_DIR}/src/YourRunAction.cc
+                  ${PROJECT_SOURCE_DIR}/src/YourEventAction.cc
+                  ${PROJECT_SOURCE_DIR}/src/YourSteppingAction.cc
+                  ${PROJECT_SOURCE_DIR}/src/G01DetectorConstruction.cc
+                  )
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/G01PrimaryGeneratorAction.hh
+                    ${PROJECT_SOURCE_DIR}/include/YourActionInitialization.hh
+                    ${PROJECT_SOURCE_DIR}/include/YourRunAction.hh
+                    ${PROJECT_SOURCE_DIR}/include/YourEventAction.hh
+                    ${PROJECT_SOURCE_DIR}/include/YourSteppingAction.hh
+                    ${PROJECT_SOURCE_DIR}/include/G01DetectorConstruction.hh)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
