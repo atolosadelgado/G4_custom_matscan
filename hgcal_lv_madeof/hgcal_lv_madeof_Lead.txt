@@ -1,0 +1,15 @@
+Logical Volumes con material: Lead
+
+- HGCalEEAbsorberLead11
+- HGCalEEAbsorberLead21
+- HGCalEEAbsorberLead22
+- HGCalEEAbsorberLead23
+- HGCalEEAbsorberLead24
+- HGCalEEAbsorberLead25
+- HGCalEEAbsorberLead26
+- HGCalEEAbsorberLead27
+- HGCalEEAbsorberLead28
+- HGCalEEAbsorberLead31
+- HGCalEEAbsorberLead32
+- HGCalEEAbsorberLead33
+- HGCalEEAbsorberLead34
