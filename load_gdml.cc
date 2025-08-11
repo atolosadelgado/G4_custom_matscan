@@ -35,9 +35,10 @@
 // --------------------------------------------------------------
 
 #include "FTFP_BERT.hh"
-#include "G01ActionInitialization.hh"
+// #include "G01ActionInitialization.hh"
 #include "G01DetectorConstruction.hh"
 #include "G01PrimaryGeneratorAction.hh"
+#include "YourActionInitialization.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -131,7 +132,7 @@ int main(int argc, char** argv)
 
   runManager->SetUserInitialization(user_detector_constructor);
   runManager->SetUserInitialization(new FTFP_BERT);
-  runManager->SetUserInitialization(new G01ActionInitialization());
+  runManager->SetUserInitialization(new YourActionInitialization());
   runManager->Initialize();
 
   // Initialize visualization

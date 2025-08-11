@@ -42,10 +42,21 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/G01PrimaryGeneratorAction.hh
                     ${PROJECT_SOURCE_DIR}/include/G01DetectorConstruction.hh)
 
 #----------------------------------------------------------------------------
+# include ROOT dependency for histograming
+#
+# Find ROOT package
+find_package(ROOT REQUIRED COMPONENTS Hist)
+# Include ROOT headers
+include_directories(${ROOT_INCLUDE_DIRS})
+# Enable ROOT-specific flags (e.g. RTTI, C++17 if needed)
+include(${ROOT_USE_FILE})
+
+#----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(load_gdml load_gdml.cc ${sources} ${headers})
-target_link_libraries(load_gdml ${Geant4_LIBRARIES} )
+target_link_libraries(load_gdml ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
