@@ -97,7 +97,18 @@ class YourRunAction : public G4UserRunAction {
 
     // move profile histogram to vector, function/class take ownership,
     //   pass by value and use std::move
-    void MoveProfileToRunAction(std::unique_ptr<tools::histo::h1d> h);
+    // void MoveProfileToRunAction(std::unique_ptr<tools::histo::h1d> h);
+
+    // Update internal vectors with mean and mean error for each bin
+    void UpdateAveragedProfileHistogram(std::unique_ptr<tools::histo::h1d> h);
+
+    // internal function, to be called in UpdateAveragedProfileHistogram
+    void InitializeAveragedProfileHistogram(int number_of_bins);
+
+    // dump histograms to a root file, to be called in end of run
+    void FinalizeAveragedProfileHistogram();
+
+
 
   // Data member declarations:
   private:
@@ -132,7 +143,14 @@ class YourRunAction : public G4UserRunAction {
     // G4double    fEdepHistMaxEnergy;
     // G4int       fEdepHistNumBins;
 
-    std::vector<std::unique_ptr<tools::histo::h1d>> runEnergyProfileZ_vector;
+    // memory explodes if all histograms are saved
+    // std::vector<std::unique_ptr<tools::histo::h1d>> runEnergyProfileZ_vector;
+
+private:
+    int nbins;
+    int count;
+    std::vector<double> mean;
+    std::vector<double> M2; // for variance
 
 };
 

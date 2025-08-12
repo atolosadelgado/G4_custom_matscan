@@ -62,58 +62,106 @@ void YourRunAction::BeginOfRunAction(const G4Run* /*run*/) {
 #include "TH1D.h"
 #include "TFile.h"
 
-void YourRunAction::EndOfRunAction(const G4Run*) {
+// void YourRunAction::EndOfRunAction(const G4Run*) {
+//
+//   const tools::histo::h1d& hist = *(runEnergyProfileZ_vector.back());
+//   G4int nbins = hist.GetNbins();
+//   G4int n_histograms = runEnergyProfileZ_vector.size();
+//   double n_histograms_sqrt = std::sqrt(n_histograms);
+//
+//   TH1D * eDepProfile_averaged = new TH1D("eDepProfile_averaged","", nbins, 3000, 6000);
+//
+//   for (int i = 1; i <= nbins; ++i) {   // assuming bins start at 1
+//       double mean_value = 0.0;
+//
+//       // 1. Calculate mean
+//       for (const auto& h : runEnergyProfileZ_vector) {
+//           mean_value += h->GetBinContent(i);
+//       }
+//       mean_value /= n_histograms;
+//
+//       // 2. Calculate variance
+//       double variance = 0.0;
+//       if( 1 < n_histograms)
+//       {
+//         for (const auto& h : runEnergyProfileZ_vector) {
+//             double diff = h->GetBinContent(i) - mean_value;
+//             variance += diff * diff;
+//         }
+//         variance /= n_histograms;
+//       }
+//
+//       // 3. Calculate mean error (standard error)
+//       double mean_error = std::sqrt(variance) / n_histograms_sqrt;
+//       eDepProfile_averaged->SetBinContent(i,mean_value);
+//       eDepProfile_averaged->SetBinError(i,  mean_error);
+//
+//
+//   }
+//   TFile * ofile = TFile::Open("out.root", "update");
+//   eDepProfile_averaged->SetDirectory(ofile);
+//   eDepProfile_averaged->Write();
+//   ofile->Close();
+//
+//
+// }
 
-  const tools::histo::h1d& hist = *(runEnergyProfileZ_vector.back());
-  G4int nbins = hist.GetNbins();
-  G4int n_histograms = runEnergyProfileZ_vector.size();
-  double n_histograms_sqrt = std::sqrt(n_histograms);
+// void YourRunAction::MoveProfileToRunAction(std::unique_ptr<tools::histo::h1d> h) {
+//     runEnergyProfileZ_vector.push_back(std::move(h));
+//     std::cout << "." << std::flush;
+//
+//     // std::cout << "\t New Histogram!\n";
+//     // const tools::histo::h1d& hist = *(runEnergyProfileZ_vector.back());
+//     // G4int nbins = hist.GetNbins();
+//     // for(int i = 1; i<nbins; ++i){
+//     //   std::cout << hist.GetBinCenter(i) << '\t' << hist.GetBinContent(i) << std::endl;
+//     // }
+// }
 
-  TH1D * eDepProfile_averaged = new TH1D("eDepProfile_averaged","", nbins, 3000, 6000);
-
-  for (int i = 1; i <= nbins; ++i) {   // assuming bins start at 1
-      double mean_value = 0.0;
-
-      // 1. Calculate mean
-      for (const auto& h : runEnergyProfileZ_vector) {
-          mean_value += h->GetBinContent(i);
-      }
-      mean_value /= n_histograms;
-
-      // 2. Calculate variance
-      double variance = 0.0;
-      if( 1 < n_histograms)
-      {
-        for (const auto& h : runEnergyProfileZ_vector) {
-            double diff = h->GetBinContent(i) - mean_value;
-            variance += diff * diff;
-        }
-        variance /= n_histograms;
-      }
-
-      // 3. Calculate mean error (standard error)
-      double mean_error = std::sqrt(variance) / n_histograms_sqrt;
-      eDepProfile_averaged->SetBinContent(i,mean_value);
-      eDepProfile_averaged->SetBinError(i,  mean_error);
-
-
+void YourRunAction::InitializeAveragedProfileHistogram(int number_of_bins)
+{
+  if( 0 == mean.size() || 0 == M2.size() )
+  {
+    count = 0;
+    mean.assign(nbins + 1, 0.0); // +1 if bins start at 1
+    M2.assign(nbins + 1, 0.0);
   }
-  TFile * ofile = TFile::Open("out.root", "update");
-  eDepProfile_averaged->SetDirectory(ofile);
-  eDepProfile_averaged->Write();
-  ofile->Close();
+}
 
+void YourRunAction::UpdateAveragedProfileHistogram(std::unique_ptr<tools::histo::h1d> h)
+{
+  count++;
+  for (int i = 1; i <= nbins; ++i) {
+      double x = h->GetBinContent(i);
+      double delta = x - mean[i];
+      mean[i] += delta / count;
+      double delta2 = x - mean[i];
+      M2[i] += delta * delta2;
+  }
+}
+
+void YourRunAction::FinalizeAveragedProfileHistogram()
+{
+
+    TH1D * eDepProfile_averaged = new TH1D("eDepProfile_averaged","", nbins, 3000, 6000);
+    for (int i = 1; i <= nbins; ++i) {
+        double variance = (count > 1) ? (M2[i] / count) : 0.0;
+        double mean_error = (count > 1) ? (std::sqrt(variance) / std::sqrt(count)) : 0.0;
+
+        eDepProfile_averaged->SetBinContent(i, mean[i]);
+        eDepProfile_averaged->SetBinError(i, mean_error);
+    }
+
+    TFile * ofile = TFile::Open("out.root", "update");
+    eDepProfile_averaged->SetDirectory(ofile);
+    eDepProfile_averaged->Write();
+    ofile->Close();
 
 }
 
-void YourRunAction::MoveProfileToRunAction(std::unique_ptr<tools::histo::h1d> h) {
-    runEnergyProfileZ_vector.push_back(std::move(h));
-    std::cout << "." << std::flush;
-
-    // std::cout << "\t New Histogram!\n";
-    // const tools::histo::h1d& hist = *(runEnergyProfileZ_vector.back());
-    // G4int nbins = hist.GetNbins();
-    // for(int i = 1; i<nbins; ++i){
-    //   std::cout << hist.GetBinCenter(i) << '\t' << hist.GetBinContent(i) << std::endl;
-    // }
+void YourRunAction::EndOfRunAction(const G4Run* )
+{
+  this->FinalizeAveragedProfileHistogram();
 }
+
+

@@ -64,7 +64,7 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
   //   currentRun->FillEdepHistogram( fEdepPerEvt );
 
   // move object and ownership to run action
-  fRunAction->MoveProfileToRunAction( std::move(eventEnergyProfileZ) );
+  fRunAction->UpdateAveragedProfileHistogram( std::move(eventEnergyProfileZ) );
   // eventEnergyProfileZ is now null
 }
 
