@@ -20,5 +20,4 @@
 /gun/number 1
 
 
-/run/beamOn 50000
-/run/dumpRegion
+/run/beamOn 20000
