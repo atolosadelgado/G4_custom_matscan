@@ -122,6 +122,7 @@ void YourRunAction::InitializeAveragedProfileHistogram(int number_of_bins)
 {
   if( 0 == mean.size() || 0 == M2.size() )
   {
+    nbins = number_of_bins;
     count = 0;
     mean.assign(nbins + 1, 0.0); // +1 if bins start at 1
     M2.assign(nbins + 1, 0.0);
@@ -130,6 +131,7 @@ void YourRunAction::InitializeAveragedProfileHistogram(int number_of_bins)
 
 void YourRunAction::UpdateAveragedProfileHistogram(std::unique_ptr<tools::histo::h1d> h)
 {
+  this->InitializeAveragedProfileHistogram(h->GetNbins());
   count++;
   for (int i = 1; i <= nbins; ++i) {
       double x = h->GetBinContent(i);
