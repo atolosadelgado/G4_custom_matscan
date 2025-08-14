@@ -40,7 +40,10 @@ void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
 
   // use these IDs to create unique histogram name
   G4String histo_basename = "E_vs_z";
-  G4String histo_name = histo_basename + threadID + runID + eventID;
+  G4String histo_name = histo_basename
+                      + "_" + G4String(std::to_string(threadID))
+                      + "_" + G4String(std::to_string(runID))
+                      + "_" + G4String(std::to_string(eventID));
 
   // define histogram bining and range
   G4int nbins = 3000;
