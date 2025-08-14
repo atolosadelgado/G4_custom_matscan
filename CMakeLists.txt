@@ -33,13 +33,20 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/G01PrimaryGeneratorAction.cc
                   ${PROJECT_SOURCE_DIR}/src/YourEventAction.cc
                   ${PROJECT_SOURCE_DIR}/src/YourSteppingAction.cc
                   ${PROJECT_SOURCE_DIR}/src/G01DetectorConstruction.cc
+                  ${PROJECT_SOURCE_DIR}/src/AveragedHistogramCollection.cc
+                  ${PROJECT_SOURCE_DIR}/src/HistogramCollection.cc
+
                   )
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/G01PrimaryGeneratorAction.hh
                     ${PROJECT_SOURCE_DIR}/include/YourActionInitialization.hh
                     ${PROJECT_SOURCE_DIR}/include/YourRunAction.hh
                     ${PROJECT_SOURCE_DIR}/include/YourEventAction.hh
                     ${PROJECT_SOURCE_DIR}/include/YourSteppingAction.hh
-                    ${PROJECT_SOURCE_DIR}/include/G01DetectorConstruction.hh)
+                    ${PROJECT_SOURCE_DIR}/include/G01DetectorConstruction.hh
+                    ${PROJECT_SOURCE_DIR}/include/AveragedHistogram.hh
+                    ${PROJECT_SOURCE_DIR}/include/AveragedHistogramCollection.hh
+                    ${PROJECT_SOURCE_DIR}/include/HistogramCollection.hh
+                    )
 
 #----------------------------------------------------------------------------
 # include ROOT dependency for histograming
