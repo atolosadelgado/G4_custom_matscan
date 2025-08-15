@@ -40,41 +40,36 @@ private:
     G4ParticleGun* fParticleGun;
 };
 //________________________________________________________________________________
-#include "G4VUserActionInitialization.hh"
+#ifdef USE_SECONDARY
 #include "SecondaryCounterActions.hh"
-class YourActionInitialization : public G4VUserActionInitialization {
-public:
-    YourActionInitialization(std::string ofilename): G4VUserActionInitialization(), fOfilename(ofilename) { }
-    ~YourActionInitialization() override {}
-    void Build() const override {
-        SetUserAction(new G01PrimaryGeneratorAction());
-        RunActionForSecondaries * run =  new RunActionForSecondaries(fOfilename);
-        // SecondaryCounterTrackingAction * trk = new SecondaryCounterTrackingAction();
-        TrkActionForSecondaries * trk = new TrkActionForSecondaries();
-        EvtActionForSecondaries * evt = new EvtActionForSecondaries(trk,run);
-        SetUserAction(run);
-        SetUserAction(evt);
-        SetUserAction(trk);
-    }
-    std::string fOfilename;
-
-};
+#else
+#include "YourActionInitialization.hh"
+#endif
 //________________________________________________________________________________
 
 int main(int argc, char** argv)
 {
     auto* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::SerialOnly);
 
-    std::string ofilename_with_secondary_stats = std::string(argv[1])
-                                                 +"_"
-                                                 +std::string(argv[2])
-                                                 +".root";
+
 
     YourDetectorConstructor * user_detector_constructor = new YourDetectorConstructor();
     user_detector_constructor->LoadGDML(argv[1]);
     runManager->SetUserInitialization(user_detector_constructor);
     runManager->SetUserInitialization(new FTFP_BERT);
-    runManager->SetUserInitialization(new YourActionInitialization(ofilename_with_secondary_stats));
+    #ifdef USE_SECONDARY
+        std::string ofilename_with_secondary_stats = std::string(argv[1])
+                                                 +"_"
+                                                 +std::string(argv[2])
+                                                 +".root";
+        runManager->SetUserInitialization(
+            new YourActionInitialization(ofilename_with_secondary_stats)
+        );
+    #else
+        runManager->SetUserInitialization(
+            new YourActionInitialization()
+        );
+    #endif
     runManager->Initialize();
 
     // Initialize visualization

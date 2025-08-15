@@ -66,9 +66,12 @@ add_executable(hgcal_sim hgcal_sim.cc ${sources} ${headers})
 target_link_libraries(load_gdml ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 target_link_libraries(hgcal_sim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
-add_executable(gdml_silentsim gdml_silentsim.cc )
-target_link_libraries(gdml_silentsim ${Geant4_LIBRARIES}  ${ROOT_LIBRARIES})
+add_executable(gdml_sim gdml_silentsim.cc ${sources} ${headers})
+target_link_libraries(gdml_sim ${Geant4_LIBRARIES}  ${ROOT_LIBRARIES})
 
+add_executable(gdml_sim_secondaries gdml_silentsim.cc ${sources} ${headers})
+target_link_libraries(gdml_sim_secondaries ${Geant4_LIBRARIES}  ${ROOT_LIBRARIES})
+target_compile_definitions(gdml_sim_secondaries PRIVATE USE_SECONDARY)
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build G01. This is so that we can run the executable directly because it

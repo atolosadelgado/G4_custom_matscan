@@ -200,6 +200,26 @@ private:
     RunActionForSecondaries* fRunAction;
 };
 
+#include "G4VUserActionInitialization.hh"
+class YourActionInitialization : public G4VUserActionInitialization {
+public:
+    YourActionInitialization(std::string ofilename): G4VUserActionInitialization(), fOfilename(ofilename) { }
+    ~YourActionInitialization() override {}
+    void Build() const override {
+        SetUserAction(new G01PrimaryGeneratorAction());
+        RunActionForSecondaries * run =  new RunActionForSecondaries(fOfilename);
+        // SecondaryCounterTrackingAction * trk = new SecondaryCounterTrackingAction();
+        TrkActionForSecondaries * trk = new TrkActionForSecondaries();
+        EvtActionForSecondaries * evt = new EvtActionForSecondaries(trk,run);
+        SetUserAction(run);
+        SetUserAction(evt);
+        SetUserAction(trk);
+    }
+    std::string fOfilename;
+
+};
+
+
 // class SecondaryCounterTrackingAction : public G4UserTrackingAction {
 // public:
 //     SecondaryCounterTrackingAction()
