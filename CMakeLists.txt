@@ -2,7 +2,7 @@
 # Setup the project
 cmake_minimum_required(VERSION 3.16...3.27)
 project(G01)
-
+set(CMAKE_BUILD_TYPE Release)
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available Vis drivers by default
 # You can set WITH_GEANT4_VIS to OFF via the command line or ccmake/cmake-gui
@@ -42,10 +42,10 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/G01PrimaryGeneratorAction.hh
                     ${PROJECT_SOURCE_DIR}/include/YourRunAction.hh
                     ${PROJECT_SOURCE_DIR}/include/YourEventAction.hh
                     ${PROJECT_SOURCE_DIR}/include/YourSteppingAction.hh
-                    ${PROJECT_SOURCE_DIR}/include/G01DetectorConstruction.hh
                     ${PROJECT_SOURCE_DIR}/include/AveragedHistogram.hh
                     ${PROJECT_SOURCE_DIR}/include/AveragedHistogramCollection.hh
                     ${PROJECT_SOURCE_DIR}/include/HistogramCollection.hh
+                    ${PROJECT_SOURCE_DIR}/include/YourDetectorConstructor.hh
                     )
 
 #----------------------------------------------------------------------------
@@ -66,6 +66,8 @@ add_executable(hgcal_sim hgcal_sim.cc ${sources} ${headers})
 target_link_libraries(load_gdml ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 target_link_libraries(hgcal_sim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
+add_executable(gdml_silentsim gdml_silentsim.cc)
+target_link_libraries(gdml_silentsim ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
