@@ -22,9 +22,9 @@ public:
   void FillEnergyProfileZ(G4double eDep_MeV, G4double zpos_mm, G4Material * mat);
 
   // define histogram bining and range
-  G4int nbins = 3000;
-  G4double zmin = 3000*CLHEP::mm;
-  G4double zmax = 6000*CLHEP::mm;
+  G4int nbins = 30000;
+  G4double zmin = 0000*CLHEP::mm;
+  G4double zmax = 3000*CLHEP::mm;
 
 private:
   YourRunAction * fRunAction;
