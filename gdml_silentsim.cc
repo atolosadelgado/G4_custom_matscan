@@ -33,14 +33,7 @@ public:
 class G01PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
-    G01PrimaryGeneratorAction(): G4VUserPrimaryGeneratorAction() {  G4int n_particle = 1;
-  fParticleGun = new G4ParticleGun(n_particle);
-
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4String particleName;
-  fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName = "geantino"));
-  fParticleGun->SetParticleEnergy(1.0 * CLHEP::GeV);
-  fParticleGun->SetParticlePosition(G4ThreeVector(0.0 * CLHEP::m, 0.0, 0.0));}
+    G01PrimaryGeneratorAction(): G4VUserPrimaryGeneratorAction() { fParticleGun = new G4ParticleGun(1); }
     ~G01PrimaryGeneratorAction(){delete fParticleGun;}
     virtual void GeneratePrimaries(G4Event* anEvent){std::cout << __PRETTY_FUNCTION__ << std::endl; fParticleGun->GeneratePrimaryVertex(anEvent);}
 private:
@@ -48,11 +41,22 @@ private:
 };
 //________________________________________________________________________________
 #include "G4VUserActionInitialization.hh"
+#include "SecondaryCounterActions.hh"
 class YourActionInitialization : public G4VUserActionInitialization {
 public:
-    YourActionInitialization():   G4VUserActionInitialization(){ }
+    YourActionInitialization(std::string ofilename): G4VUserActionInitialization(), fOfilename(ofilename) { }
     ~YourActionInitialization() override {}
-    void Build() const override { SetUserAction(new G01PrimaryGeneratorAction());}
+    void Build() const override {
+        SetUserAction(new G01PrimaryGeneratorAction());
+        MyRunAction * run =  new MyRunAction(fOfilename);
+        SecondaryCounterTrackingAction * trk = new SecondaryCounterTrackingAction();
+        MyEventAction * evt = new MyEventAction(trk,run);
+        SetUserAction(run);
+        SetUserAction(evt);
+        SetUserAction(trk);
+    }
+    std::string fOfilename;
+
 };
 //________________________________________________________________________________
 
@@ -60,11 +64,16 @@ int main(int argc, char** argv)
 {
     auto* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::SerialOnly);
 
+    std::string ofilename_with_secondary_stats = std::string(argv[1])
+                                                 +"_"
+                                                 +std::string(argv[2])
+                                                 +".root";
+
     YourDetectorConstructor * user_detector_constructor = new YourDetectorConstructor();
     user_detector_constructor->LoadGDML(argv[1]);
     runManager->SetUserInitialization(user_detector_constructor);
     runManager->SetUserInitialization(new FTFP_BERT);
-    runManager->SetUserInitialization(new YourActionInitialization());
+    runManager->SetUserInitialization(new YourActionInitialization(ofilename_with_secondary_stats));
     runManager->Initialize();
 
     // Initialize visualization
@@ -74,8 +83,6 @@ int main(int argc, char** argv)
     // if BeamOn(0) is not there, it crashes...
     runManager->BeamOn(0);
 
-    // Get the pointer to the User Interface manager
-    G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
 
     // option for regions
@@ -85,6 +92,17 @@ int main(int argc, char** argv)
         define_hgcal_subregions();
     else
         std::cout << "Warning, no regions are being defined\n";
+    G4RunManager::GetRunManager()->GeometryHasBeenModified();
+    G4RunManager::GetRunManager()->PhysicsHasBeenModified();
+    G4ProductionCutsTable::GetProductionCutsTable()->UpdateCoupleTable(user_detector_constructor->worldPV);
+
+    // this line makes program crash
+    // runManager->ReinitializeGeometry(true);
+
+
+    // Get the pointer to the User Interface manager
+    G4UImanager* UImanager = G4UImanager::GetUIpointer();
+
 
 
     // if macrofile is provided, use it, otherwise open visualization

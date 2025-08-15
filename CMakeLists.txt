@@ -66,8 +66,8 @@ add_executable(hgcal_sim hgcal_sim.cc ${sources} ${headers})
 target_link_libraries(load_gdml ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 target_link_libraries(hgcal_sim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
-add_executable(gdml_silentsim gdml_silentsim.cc)
-target_link_libraries(gdml_silentsim ${Geant4_LIBRARIES})
+add_executable(gdml_silentsim gdml_silentsim.cc )
+target_link_libraries(gdml_silentsim ${Geant4_LIBRARIES}  ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
