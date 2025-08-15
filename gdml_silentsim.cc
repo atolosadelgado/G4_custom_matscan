@@ -48,9 +48,10 @@ public:
     ~YourActionInitialization() override {}
     void Build() const override {
         SetUserAction(new G01PrimaryGeneratorAction());
-        MyRunAction * run =  new MyRunAction(fOfilename);
-        SecondaryCounterTrackingAction * trk = new SecondaryCounterTrackingAction();
-        MyEventAction * evt = new MyEventAction(trk,run);
+        RunActionForSecondaries * run =  new RunActionForSecondaries(fOfilename);
+        // SecondaryCounterTrackingAction * trk = new SecondaryCounterTrackingAction();
+        TrkActionForSecondaries * trk = new TrkActionForSecondaries();
+        EvtActionForSecondaries * evt = new EvtActionForSecondaries(trk,run);
         SetUserAction(run);
         SetUserAction(evt);
         SetUserAction(trk);
