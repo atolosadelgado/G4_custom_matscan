@@ -19,5 +19,5 @@ void YourSteppingAction::UserSteppingAction(const G4Step* theStep) {
   if(0 == eDep_MeV) return;
   const G4double zpos_mm   = theStep->GetPreStepPoint()->GetPosition().z() / CLHEP::mm;
   G4Material * mat = theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetMaterial();
-  fYourEventAction->FillEnergyProfileZ(eDep_MeV, zpos_mm, mat);
+  fYourEventAction->FillEnergyProfileZ(eDep_MeV, zpos_mm -2.5e4*CLHEP::mm /*offset of geometry*/, mat);
 }
