@@ -28,27 +28,22 @@ public:
     G4VPhysicalVolume * worldPV = {nullptr};
 };
 //________________________________________________________________________________
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "G4ParticleGun.hh"
-class G01PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
-{
-public:
-    G01PrimaryGeneratorAction(): G4VUserPrimaryGeneratorAction() { fParticleGun = new G4ParticleGun(1); }
-    ~G01PrimaryGeneratorAction(){delete fParticleGun;}
-    virtual void GeneratePrimaries(G4Event* anEvent){std::cout << __PRETTY_FUNCTION__ << std::endl; fParticleGun->GeneratePrimaryVertex(anEvent);}
-private:
-    G4ParticleGun* fParticleGun;
-};
-//________________________________________________________________________________
-#ifdef USE_SECONDARY
+
 #include "SecondaryCounterActions.hh"
-#else
 #include "YourActionInitialization.hh"
-#endif
+
 //________________________________________________________________________________
+
+void help(int argc, char** argv){
+    std::cout << "Usage:" << std::endl;
+    std::cout << "\t" << argv[0] << "<geometry.gdml> <cut_type> <action_type> <gun.mac>" << std::endl;
+    std::cout << "\t  <cut_type>: extra regions defined inside the application. Options: original_cuts, new_cuts, no_cuts" << std::endl;
+    std::cout << "\t  <action_type>: action for the Geant4 application. Options: secondaries (for just stats of secondaries), profile (for shower profile)" << std::endl;
+}
 
 int main(int argc, char** argv)
 {
+    help(argc, argv);
     auto* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::SerialOnly);
 
 
@@ -57,19 +52,27 @@ int main(int argc, char** argv)
     user_detector_constructor->LoadGDML(argv[1]);
     runManager->SetUserInitialization(user_detector_constructor);
     runManager->SetUserInitialization(new FTFP_BERT);
-    #ifdef USE_SECONDARY
+//     #ifdef USE_SECONDARY
+    if( std::string( argv[3] ) == "secondaries"){
         std::string ofilename_with_secondary_stats = std::string(argv[1])
                                                  +"_"
                                                  +std::string(argv[2])
                                                  +".root";
         runManager->SetUserInitialization(
-            new YourActionInitialization(ofilename_with_secondary_stats)
+            new YourActionInitializationForSecondaries(ofilename_with_secondary_stats)
         );
-    #else
+    }
+    else if( std::string( argv[3] ) == "profile"){
+//     #else
         runManager->SetUserInitialization(
             new YourActionInitialization()
         );
-    #endif
+//     #endif
+    }
+    else{
+        std::cerr << "No actions!" << std::endl;
+//         std::cin.ignore();
+    }
     runManager->Initialize();
 
     // Initialize visualization
@@ -102,10 +105,10 @@ int main(int argc, char** argv)
 
 
     // if macrofile is provided, use it, otherwise open visualization
-    if (argc == 4)  // batch mode
+    if (argc == 5)  // batch mode
     {
         G4String command = "/control/execute ";
-        G4String fileName = argv[3];
+        G4String fileName = argv[4];
         UImanager->ApplyCommand(command + fileName);
     }
     else  // interactive mode

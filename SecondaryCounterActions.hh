@@ -200,13 +200,15 @@ private:
     RunActionForSecondaries* fRunAction;
 };
 
+#include "MyPrimaryGenerator.hh"
+
 #include "G4VUserActionInitialization.hh"
-class YourActionInitialization : public G4VUserActionInitialization {
+class YourActionInitializationForSecondaries : public G4VUserActionInitialization {
 public:
-    YourActionInitialization(std::string ofilename): G4VUserActionInitialization(), fOfilename(ofilename) { }
-    ~YourActionInitialization() override {}
+    YourActionInitializationForSecondaries(std::string ofilename): G4VUserActionInitialization(), fOfilename(ofilename) { }
+    ~YourActionInitializationForSecondaries() override {}
     void Build() const override {
-        SetUserAction(new G01PrimaryGeneratorAction());
+        SetUserAction(new MyPrimaryGenerator());
         RunActionForSecondaries * run =  new RunActionForSecondaries(fOfilename);
         // SecondaryCounterTrackingAction * trk = new SecondaryCounterTrackingAction();
         TrkActionForSecondaries * trk = new TrkActionForSecondaries();

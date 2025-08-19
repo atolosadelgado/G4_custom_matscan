@@ -2,7 +2,8 @@
 #include "YourActionInitialization.hh"
 
 
-#include "G01PrimaryGeneratorAction.hh"
+// #include "G01PrimaryGeneratorAction.hh"
+#include "MyPrimaryGenerator.hh"
 
 #include "YourRunAction.hh"
 #include "YourEventAction.hh"
@@ -40,8 +41,7 @@ void YourActionInitialization::BuildForMaster() const {
 // - for worker threads (will be invoked later by all worker G4RunManager-s)
 void YourActionInitialization::Build() const {
   // Set UserPrimaryGeneratorAction
-  G01PrimaryGeneratorAction* primaryAction = new G01PrimaryGeneratorAction();
-  SetUserAction(primaryAction);
+  SetUserAction(new MyPrimaryGenerator());
   // Set UserRunAction
   YourRunAction* runAction = new YourRunAction();
   SetUserAction(runAction);
