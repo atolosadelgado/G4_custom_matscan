@@ -20,7 +20,7 @@ void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
 void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
 
   for( auto & it : fHistogramCollection_map.histogramCollection_map){
-    tools::histo::h1d & profile_histogram = *(it.second);
+    TH1D & profile_histogram = *(it.second);
     G4Material * mat = it.first;
     fRunAction->fProfileHistograms.UpdateAverageAndMean(profile_histogram, mat);
   }

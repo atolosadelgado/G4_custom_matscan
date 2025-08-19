@@ -33,7 +33,7 @@ void AveragedHistogramCollection::Initialize(std::string histo_basename, int nbi
 
 }
 
-void AveragedHistogramCollection::UpdateAverageAndMean(const tools::histo::h1d& h, G4Material* mat)
+void AveragedHistogramCollection::UpdateAverageAndMean(const TH1D& h, G4Material* mat)
 {
     if( nullptr == mat) return;
     auto map_iterator = this->averagedProfilePerMaterial_map.find(mat);

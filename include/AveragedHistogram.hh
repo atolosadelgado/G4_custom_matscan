@@ -4,7 +4,7 @@
 #include "TH1D.h"
 #include "TFile.h"
 
-#include <tools/histo/h1d>
+// #include <tools/histo/h1d>
 
 #include <memory>
 #include <vector>
@@ -21,11 +21,13 @@ public:
         hist = std::make_unique<TH1D>(name.c_str(), "", nbins, xmin, xmax);
     }
 
-    void update(const tools::histo::h1d& h) {
+    void update(const TH1D & h) {
         count++;
         // std::cout << "\t ++ " << hist->GetName() << std::endl;
 
         for (int i = 1; i <= nbins; ++i) {
+//             double a_entries, a_Sw, a_Sw2, a_Sxw, a_Sx2w;
+//             h.get_bin_content(i, a_entries, a_Sw, a_Sw2, a_Sxw, a_Sx2w);
             double x = h.GetBinContent(i);
             double delta = x - mean[i];
             mean[i] += delta / count;
@@ -44,7 +46,7 @@ public:
 
         for (int i = 1; i <= nbins; ++i) {
             double variance = (count > 1) ? (M2[i] / count) : 0.0;
-            double mean_error = (count > 1) ? (std::sqrt(variance) / std::sqrt(count)) : 0.0;
+            double mean_error = (count > 1) ? (std::sqrt(variance) / std::sqrt(count-1)) : 0.0;
             raw_ptr->SetBinContent(i, mean[i]);
             raw_ptr->SetBinError(i, mean_error);
         }

@@ -30,7 +30,7 @@ void HistogramCollection::Initialize(std::string histo_basename, int nbins_input
       const std::string histo_name = histo_basename + "_" + mat_name;
         histogramCollection_map.emplace(
             material,
-            std::make_unique<tools::histo::h1d>(histo_name, nbins, zmin, zmax)
+            std::make_unique<TH1D>(histo_name.c_str(), "", nbins, zmin, zmax)
         );
   }
 
@@ -43,13 +43,13 @@ void HistogramCollection::Fill(double energy_in_MeV, double z_in_mm, G4Material*
     if( this->histogramCollection_map.end() != map_iterator)
     {
         // fill histogram with weight "energy""
-      map_iterator->second->fill( z_in_mm, energy_in_MeV );
+      map_iterator->second->Fill( z_in_mm, energy_in_MeV );
     }
 }
 
 void HistogramCollection::Reset()
 {
     for(auto & it : histogramCollection_map)
-        it.second->reset();
+        it.second->Reset();
 }
 

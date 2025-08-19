@@ -20,7 +20,7 @@ public:
     void Initialize(std::string histo_basename, int nbins_input, double zmin_input, double zmax_input);
 
     // updates internal histograms of energy profile after the event
-    void UpdateAverageAndMean(const tools::histo::h1d& h, G4Material * mat);
+    void UpdateAverageAndMean(const TH1D& h, G4Material * mat);
 
     // save histograms to a rootfile
     void SaveRootfile(std::string ofilename);
