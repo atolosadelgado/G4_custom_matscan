@@ -1,8 +1,6 @@
 #ifndef AVERAGEDHISTOGRAM
 #define AVERAGEDHISTOGRAM
 
-#pragma once
-
 #include <memory>
 #include <vector>
 #include <iostream>
@@ -104,12 +102,14 @@ private:
     std::unique_ptr<TH1D> hist;
 };
 
+// --------------------
+// Code for testing Welford's algorithm implementation
+// --------------------
+
 #include <random>
 #include <iostream>
 #include <vector>
 #include <cmath>
-
-// --- Assuming WelfordAccumulator is already defined ---
 
 // Two-pass algorithm for variance and mean
 struct TwoPassResult {
