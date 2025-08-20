@@ -36,10 +36,13 @@ public:
 
 void help(int argc, char** argv){
     std::cout << "Usage:" << std::endl;
-    std::cout << "\t" << argv[0] << "<geometry.gdml> <cut_type> <action_type> <gun.mac>" << std::endl;
+    std::cout << "\t" << argv[0] << "<geometry.gdml> <cut_type> <action_type> <physics option> <gun.mac>" << std::endl;
     std::cout << "\t  <cut_type>: extra regions defined inside the application. Options: original_cuts, new_cuts, no_cuts" << std::endl;
     std::cout << "\t  <action_type>: action for the Geant4 application. Options: secondaries (for just stats of secondaries), profile (for shower profile)" << std::endl;
+    std::cout << "\t  <physics option>: name of physics list to be used (e.g., FTFP_BERT_EMZ)" << std::endl;
 }
+
+#include "G4PhysListFactory.hh"
 
 int main(int argc, char** argv)
 {
@@ -49,13 +52,14 @@ int main(int argc, char** argv)
     auto geometry_filename = argv[1];
     auto action_type = std::string( argv[3] );
     auto productioncut_type = std::string( argv[2] );
+    auto physics_list_name = std::string( argv[4] );
     bool vis_mode = false;
 
     G4String g4macro_filename;
 
     // if g4 macro file is provided
-    if( argc == 5 )
-        g4macro_filename =G4String( argv[4] );
+    if( argc == 6 )
+        g4macro_filename =G4String( argv[5] );
     else
         vis_mode = true;
 
@@ -63,7 +67,12 @@ int main(int argc, char** argv)
     YourDetectorConstructor * user_detector_constructor = new YourDetectorConstructor();
     user_detector_constructor->LoadGDML(geometry_filename);
     runManager->SetUserInitialization(user_detector_constructor);
-    runManager->SetUserInitialization(new FTFP_BERT);
+
+
+    G4PhysListFactory pl_factory;
+    auto physics_list = pl_factory.GetReferencePhysList( physics_list_name );
+    if( ! physics_list ) throw std::runtime_error("No physics list named <"+ physics_list_name+"> found");
+    runManager->SetUserInitialization(physics_list);
     if( action_type == "secondaries"){
         std::string ofilename_with_secondary_stats = std::string(argv[1])
                                                  +"_"
