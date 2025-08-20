@@ -33,6 +33,18 @@ public:
 #include "YourActionInitialization.hh"
 
 //________________________________________________________________________________
+#include <iostream>
+#include <string>
+
+std::string stripExtension(const std::string& filename) {
+    size_t lastDot = filename.find_last_of('.');
+    if (lastDot == std::string::npos) {
+        // No dot found, return original filename
+        return filename;
+    }
+    return filename.substr(0, lastDot);
+}
+//________________________________________________________________________________
 
 void help(int argc, char** argv){
     std::cout << "Usage:" << std::endl;
@@ -63,6 +75,16 @@ int main(int argc, char** argv)
     else
         vis_mode = true;
 
+    // create ofilename based on input parameters
+    std::string ofilename = action_type;
+        ofilename += "_";
+        ofilename += stripExtension(geometry_filename);
+        ofilename += "_";
+        ofilename += productioncut_type;
+        ofilename += "_";
+        ofilename += physics_list_name;
+        ofilename += ".root";
+
 
     YourDetectorConstructor * user_detector_constructor = new YourDetectorConstructor();
     user_detector_constructor->LoadGDML(geometry_filename);
@@ -74,14 +96,8 @@ int main(int argc, char** argv)
     if( ! physics_list ) throw std::runtime_error("No physics list named <"+ physics_list_name+"> found");
     runManager->SetUserInitialization(physics_list);
     if( action_type == "secondaries"){
-        std::string ofilename_with_secondary_stats = std::string(argv[1])
-                                                 +"_"
-                                                 +std::string(argv[2])
-                                                 +"_"
-                                                 +"secondaryStats"
-                                                 +".root";
         runManager->SetUserInitialization(
-            new YourActionInitializationForSecondaries(ofilename_with_secondary_stats)
+            new YourActionInitializationForSecondaries(ofilename)
         );
     }
     else if( action_type == "profile"){
