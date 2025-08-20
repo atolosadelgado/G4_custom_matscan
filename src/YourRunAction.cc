@@ -5,7 +5,7 @@
 #include "YourEventAction.hh"
 
 
-YourRunAction::YourRunAction():G4UserRunAction(){}
+YourRunAction::YourRunAction(std::string ofilename):G4UserRunAction(),_ofilename(ofilename){}
 
 
 YourRunAction::~YourRunAction() {}
@@ -29,7 +29,7 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
 }
 
 void YourRunAction::EndOfRunAction(const G4Run* ){
-    this->fProfileHistograms.SaveRootfile("out.root");
+    this->fProfileHistograms.SaveRootfile(_ofilename);
 
 }
 

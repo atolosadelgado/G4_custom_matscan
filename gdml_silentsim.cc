@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     }
     else if( action_type == "profile"){
         runManager->SetUserInitialization(
-            new YourActionInitialization()
+            new YourActionInitialization(ofilename)
         );
     }
     else{

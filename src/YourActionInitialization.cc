@@ -11,8 +11,8 @@
 
 
 
-YourActionInitialization::YourActionInitialization()
-:   G4VUserActionInitialization(){ }
+YourActionInitialization::YourActionInitialization(std::string ofilename)
+:   G4VUserActionInitialization(), _ofilename(ofilename){ }
 
 
 YourActionInitialization::~YourActionInitialization() {}
@@ -32,7 +32,7 @@ void YourActionInitialization::BuildForMaster() const {
   // object but not for the Worker RunAction objects)
   //
   // the primary-generator not used in the master RunAction only for the workers
-  SetUserAction(new YourRunAction());
+//   SetUserAction(new YourRunAction());
 }
 
 // Create all User Actions here:
@@ -43,7 +43,7 @@ void YourActionInitialization::Build() const {
   // Set UserPrimaryGeneratorAction
   SetUserAction(new MyPrimaryGenerator());
   // Set UserRunAction
-  YourRunAction* runAction = new YourRunAction();
+  YourRunAction* runAction = new YourRunAction(_ofilename);
   SetUserAction(runAction);
   // Set UserEventAction
   YourEventAction* eventAction = new YourEventAction(runAction);

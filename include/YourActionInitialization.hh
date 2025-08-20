@@ -35,14 +35,14 @@ class YourDetectorConstruction;
  * to collect/merge the individual thread-local run infomation into one global YourRun obejct after all worker finished the simulation.
  *
  */
-
+#include <string>
 class YourActionInitialization : public G4VUserActionInitialization {
 
   // Method declaration:
   public:
 
     // CTR
-    YourActionInitialization();
+    YourActionInitialization(std::string ofilename);
     ~YourActionInitialization() override;
 
     /**
@@ -68,7 +68,7 @@ class YourActionInitialization : public G4VUserActionInitialization {
 
   // Data member declarations:
   private:
-
+    std::string _ofilename;
     // YourDetectorConstruction* fYourDetector;
 };
 

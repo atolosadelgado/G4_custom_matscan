@@ -9,12 +9,14 @@ class YourRunAction : public G4UserRunAction {
 
   public:
 
-    YourRunAction();
+    YourRunAction(std::string ofilename);
     virtual ~YourRunAction();
     void   BeginOfRunAction(const G4Run* run) override;
     void   EndOfRunAction(const G4Run* run) override;
 
   AveragedHistogramCollection fProfileHistograms;
+  std::string _ofilename;
+
 };
 
 #endif

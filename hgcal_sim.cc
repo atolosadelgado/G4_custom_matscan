@@ -71,7 +71,7 @@ int main(int argc, char** argv)
   user_detector_constructor->SetGDMLfilename(argv[1]);
   runManager->SetUserInitialization(user_detector_constructor);
   runManager->SetUserInitialization(new FTFP_BERT);
-  runManager->SetUserInitialization(new YourActionInitialization());
+  runManager->SetUserInitialization(new YourActionInitialization("out.root"));
   runManager->Initialize();
 
   // Initialize visualization

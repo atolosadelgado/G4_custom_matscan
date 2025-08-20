@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 
   runManager->SetUserInitialization(user_detector_constructor);
   runManager->SetUserInitialization(new FTFP_BERT);
-  runManager->SetUserInitialization(new YourActionInitialization());
+  runManager->SetUserInitialization(new YourActionInitialization("out.root"));
   runManager->Initialize();
 
   // Initialize visualization
