@@ -4,8 +4,14 @@
 
 #include <AveragedHistogramCollection.hh>
 
+#include "MyWatch.hh"
+
 void AveragedHistogramCollection::Initialize(std::string histo_basename, int nbins_input, double zmin_input, double zmax_input)
 {
+
+  // report time of initialization
+  MyWatch myInit("Initializing Averaged histogram collection");
+
   G4MaterialTable* material_table_vector = G4Material::GetMaterialTable();
   if(nullptr == material_table_vector) throw std::runtime_error("Material table not found, null pointer!");
 
@@ -30,6 +36,9 @@ void AveragedHistogramCollection::Initialize(std::string histo_basename, int nbi
       );
       // std::cout << "\t-New histogram: " << histo_name << std::endl;
   }
+
+  // lets put the test here, it will throw runtime error if something is wrong...
+  WelfordAccumulator::run_test();
 
 }
 

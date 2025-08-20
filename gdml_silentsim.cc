@@ -68,6 +68,8 @@ int main(int argc, char** argv)
         std::string ofilename_with_secondary_stats = std::string(argv[1])
                                                  +"_"
                                                  +std::string(argv[2])
+                                                 +"_"
+                                                 +"secondaryStats"
                                                  +".root";
         runManager->SetUserInitialization(
             new YourActionInitializationForSecondaries(ofilename_with_secondary_stats)
