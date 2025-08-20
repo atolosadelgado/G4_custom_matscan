@@ -25,6 +25,17 @@ public:
   G4int nbins = 30000;
   G4double zmin = 0000*CLHEP::mm;
   G4double zmax = 3000*CLHEP::mm;
+  // this is done
+  G4double zoffset_mm = 0;
+
+  void SetOffset(){
+    if(!fRunAction) return;
+    bool is_test_beam_geometry = fRunAction->_ofilename.find("TBHGCal181Oct") != std::string::npos;
+    if( is_test_beam_geometry )
+      zoffset_mm = 2.5e4*CLHEP::mm; // offset of test beam geometry
+    else
+      zoffset_mm = 3.0e3*CLHEP::mm; // offset of full geometry
+  }
 
 private:
   YourRunAction * fRunAction;
