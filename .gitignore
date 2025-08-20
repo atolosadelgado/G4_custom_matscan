@@ -1,3 +1,8 @@
 build
 *.root
 comparison*
+cut0.03mm
+cut3mm
+cutNew
+*kdev*
+*hyperfine*
