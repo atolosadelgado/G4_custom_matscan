@@ -24,9 +24,6 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
     G4Material * mat = it.first;
     fRunAction->fProfileHistograms.UpdateAverageAndMean(profile_histogram, mat);
   }
-  G4int eventID  = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
-  if( eventID % 100 == 0)
-      std::cout << "Event " << eventID << std::endl;
 }
 
 

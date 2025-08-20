@@ -46,14 +46,25 @@ int main(int argc, char** argv)
     help(argc, argv);
     auto* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::SerialOnly);
 
+    auto geometry_filename = argv[1];
+    auto action_type = std::string( argv[3] );
+    auto productioncut_type = std::string( argv[2] );
+    bool vis_mode = false;
+
+    G4String g4macro_filename;
+
+    // if g4 macro file is provided
+    if( argc == 5 )
+        g4macro_filename =G4String( argv[4] );
+    else
+        vis_mode = true;
 
 
     YourDetectorConstructor * user_detector_constructor = new YourDetectorConstructor();
-    user_detector_constructor->LoadGDML(argv[1]);
+    user_detector_constructor->LoadGDML(geometry_filename);
     runManager->SetUserInitialization(user_detector_constructor);
     runManager->SetUserInitialization(new FTFP_BERT);
-//     #ifdef USE_SECONDARY
-    if( std::string( argv[3] ) == "secondaries"){
+    if( action_type == "secondaries"){
         std::string ofilename_with_secondary_stats = std::string(argv[1])
                                                  +"_"
                                                  +std::string(argv[2])
@@ -62,16 +73,13 @@ int main(int argc, char** argv)
             new YourActionInitializationForSecondaries(ofilename_with_secondary_stats)
         );
     }
-    else if( std::string( argv[3] ) == "profile"){
-//     #else
+    else if( action_type == "profile"){
         runManager->SetUserInitialization(
             new YourActionInitialization()
         );
-//     #endif
     }
     else{
         std::cerr << "No actions!" << std::endl;
-//         std::cin.ignore();
     }
     runManager->Initialize();
 
@@ -82,15 +90,14 @@ int main(int argc, char** argv)
     // if BeamOn(0) is not there, it crashes...
     runManager->BeamOn(0);
 
-
-
     // option for regions
-    if( std::string( argv[2] ) == "original_cuts")
+    if( productioncut_type == "original_cuts")
         define_original_hgcal_region();
-    else if( std::string( argv[2] ) == "new_cuts")
+    else if( productioncut_type == "new_cuts")
         define_hgcal_subregions();
     else
         std::cout << "Warning, no regions are being defined\n";
+
     G4RunManager::GetRunManager()->GeometryHasBeenModified();
     G4RunManager::GetRunManager()->PhysicsHasBeenModified();
     G4ProductionCutsTable::GetProductionCutsTable()->UpdateCoupleTable(user_detector_constructor->worldPV);
@@ -104,20 +111,19 @@ int main(int argc, char** argv)
 
 
 
-    // if macrofile is provided, use it, otherwise open visualization
-    if (argc == 5)  // batch mode
-    {
-        G4String command = "/control/execute ";
-        G4String fileName = argv[4];
-        UImanager->ApplyCommand(command + fileName);
-    }
-    else  // interactive mode
+    if(vis_mode)
     {
         G4UIExecutive* ui = new G4UIExecutive(argc, argv);
         UImanager->ApplyCommand("/control/execute vis.mac");
         ui->SessionStart();
         delete ui;
     }
+    else
+    {
+        G4String command = "/control/execute ";
+        UImanager->ApplyCommand(command + g4macro_filename);
+    }
+
 
     //________________________________________________________________________________
 
