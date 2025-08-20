@@ -16,10 +16,10 @@
 /gun/direction 0 0 1
 
 # For Test beam
-/gun/position 0 0 -900 cm
+#/gun/position 0 0 -900 cm
 
 # For full geometry
-#/gun/position 0.5 0.5 0 m
+/gun/position 0.5 0.5 0 m
 /gun/number 1
 
 /run/dumpRegion
