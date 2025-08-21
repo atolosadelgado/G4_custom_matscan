@@ -9,7 +9,12 @@
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
 
-void define_hgcal_subregions();
+
+using matname_t = std::string;
+using cut_mm_t = double;
+using mat_cut_mm_map_t = std::map<matname_t, cut_mm_t>;
+mat_cut_mm_map_t LoadMaterialCuts(std::string ifilename);
+void define_hgcal_subregions(mat_cut_mm_map_t & m);
 void define_original_hgcal_region();
 
 
@@ -120,8 +125,10 @@ int main(int argc, char** argv)
     // option for regions
     if( productioncut_type == "original_cuts")
         define_original_hgcal_region();
-    else if( productioncut_type == "new_cuts")
-        define_hgcal_subregions();
+    else if( productioncut_type == "new_cuts"){
+        auto mat_cut_map = LoadMaterialCuts("material_cut_mm.txt");
+        define_hgcal_subregions(mat_cut_map);
+    }
     else
         std::cout << "Warning, no regions are being defined\n";
 
@@ -166,7 +173,22 @@ int main(int argc, char** argv)
 #include <G4Material.hh>
 #include "G4RegionStore.hh"
 
-void define_hgcal_subregions()
+#include <fstream>
+mat_cut_mm_map_t LoadMaterialCuts(std::string matcut_filename)
+{
+    mat_cut_mm_map_t material_cut_mm_map;
+    std::ifstream ifile(matcut_filename);
+    std::string matname;
+    double cut_mm;
+    while(ifile >> matname >> cut_mm)
+    {
+        material_cut_mm_map.emplace( matname, cut_mm );
+    }
+    return material_cut_mm_map;
+}
+
+
+void define_hgcal_subregions(mat_cut_mm_map_t & material_cut_mm_map)
 {
 
     // 1. Define master region of HGCal
@@ -175,10 +197,10 @@ void define_hgcal_subregions()
         // assign cuts
         auto HGCalcuts = new G4ProductionCuts();
         // Set cut values (in mm)
-        HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalcuts->SetProductionCut(3 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
         HGCalRegion->SetProductionCuts(HGCalcuts);
         // ----------------------------------------------------------
         // assign root volumes
@@ -193,10 +215,10 @@ void define_hgcal_subregions()
         // assign cuts
         auto HGCalEEsiliconCuts = new G4ProductionCuts();
         // Set cut values (in mm)
-        HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEsiliconCuts->SetProductionCut(0.03 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
         HGCalEEsiliconRegion->SetProductionCuts(HGCalEEsiliconCuts);
         // ----------------------------------------------------------
         // assign root volumes
@@ -218,10 +240,10 @@ void define_hgcal_subregions()
         // assign cuts
         auto HGCalEEkaptonCopperCuts = new G4ProductionCuts();
         // Set cut values (in mm)
-        HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEkaptonCopperCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
         HGCalEEkaptonCopperRegion->SetProductionCuts(HGCalEEkaptonCopperCuts);
         // ----------------------------------------------------------
         // assign root volumes
@@ -241,10 +263,10 @@ void define_hgcal_subregions()
         // assign cuts
         auto HGCalEEwcuCuts = new G4ProductionCuts();
         // Set cut values (in mm)
-        HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEwcuCuts->SetProductionCut(0.3 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
         HGCalEEwcuRegion->SetProductionCuts(HGCalEEwcuCuts);
         // ----------------------------------------------------------
         // assign root volumes
@@ -262,10 +284,10 @@ void define_hgcal_subregions()
         // assign cuts
         auto HGCalEEwcuCuts = new G4ProductionCuts();
         // Set cut values (in mm)
-        HGCalEEwcuCuts->SetProductionCut(5.0 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEwcuCuts->SetProductionCut(2.0 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEwcuCuts->SetProductionCut(2.0 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEwcuCuts->SetProductionCut(5.0 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
         HGCalEEwcuRegion->SetProductionCuts(HGCalEEwcuCuts);
         // ----------------------------------------------------------
         // assign root volumes
@@ -281,13 +303,13 @@ void define_hgcal_subregions()
     {
         auto HGCalEEwcuRegion = new G4Region("HGCalEEstainlesstealRegion");
         // assign cuts
-        auto HGCalEEwcuCuts = new G4ProductionCuts();
+        auto HGCalEEstainlesssteelCuts = new G4ProductionCuts();
         // Set cut values (in mm)
-        HGCalEEwcuCuts->SetProductionCut(0.5 * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEwcuCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEwcuCuts->SetProductionCut(0.1 * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEwcuCuts->SetProductionCut(2 * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-        HGCalEEwcuRegion->SetProductionCuts(HGCalEEwcuCuts);
+        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+        HGCalEEwcuRegion->SetProductionCuts(HGCalEEstainlesssteelCuts);
         // ----------------------------------------------------------
         // assign root volumes
         const G4Material * si_material = G4Material::GetMaterial("StainlessSteel");

@@ -1,0 +1,8 @@
+global 3
+Silicon 0.03
+KaptonCopper 0.1
+Kapton 0.1
+Kapton 0.1
+WCu 0.3
+Lead 2
+StainlessSteel 0.1
