@@ -36,6 +36,7 @@ public:
 //________________________________________________________________________________
 
 #include "SecondaryCounterActions.hh"
+#include "SecondaryCounterPerMaterialActions.hh"
 #include "YourActionInitialization.hh"
 
 //________________________________________________________________________________
@@ -63,7 +64,7 @@ void help(int argc, char** argv){
     std::cout << "Usage:" << std::endl;
     std::cout << "\t" << argv[0] << " <geometry.gdml> <cut_type> <action_type> <physics option> <gun.mac>" << std::endl;
     std::cout << "\t  <cut_type>: extra regions defined inside the application. Options: original_cuts, new_cuts, no_cuts" << std::endl;
-    std::cout << "\t  <action_type>: action for the Geant4 application. Options: secondaries (for just stats of secondaries), profile (for shower profile)" << std::endl;
+    std::cout << "\t  <action_type>: action for the Geant4 application. Options: secondaries (for just stats of secondaries), secondaries_permaterial, profile (for shower profile)" << std::endl;
     std::cout << "\t  <physics option>: name of physics list to be used (e.g., FTFP_BERT_EMZ)" << std::endl;
 }
 
@@ -117,6 +118,9 @@ int main(int argc, char** argv)
         runManager->SetUserInitialization(
             new YourActionInitialization(ofilename)
         );
+    }
+    else if( action_type == "secondaries_permaterial" ){
+        runManager->SetUserInitialization(new secondaryCounterPerMaterial_YourActionInit(ofilename));
     }
     else{
         std::cerr << "No actions!" << std::endl;

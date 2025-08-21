@@ -1,8 +1,11 @@
 global 3
 Silicon 0.03
-KaptonCopper 0.1
 Kapton 0.1
-Kapton 0.1
+Copper 0.1
 WCu 0.3
 Lead 2
 StainlessSteel 0.1
+HGC_EEConnector 0.1
+HGC_G10-FR4 0.1
+Epoxy 0.1
+
