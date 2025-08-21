@@ -42,14 +42,21 @@ public:
 #include <iostream>
 #include <string>
 
-std::string stripExtension(const std::string& filename) {
+std::string get_basename(const std::string& filepath) {
+    // find last slash
+    size_t lastSlash = filepath.find_last_of("/\\");
+    std::string filename = (lastSlash == std::string::npos) ? filepath : filepath.substr(lastSlash + 1);
+
+    // find last dot
     size_t lastDot = filename.find_last_of('.');
     if (lastDot == std::string::npos) {
-        // No dot found, return original filename
+        // no extension
         return filename;
     }
+
     return filename.substr(0, lastDot);
 }
+
 //________________________________________________________________________________
 
 void help(int argc, char** argv){
@@ -84,7 +91,7 @@ int main(int argc, char** argv)
     // create ofilename based on input parameters
     std::string ofilename = action_type;
         ofilename += "_";
-        ofilename += stripExtension(geometry_filename);
+        ofilename += get_basename(geometry_filename);
         ofilename += "_";
         ofilename += productioncut_type;
         ofilename += "_";
