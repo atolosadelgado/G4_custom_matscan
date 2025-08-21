@@ -15,6 +15,7 @@ using cut_mm_t = double;
 using mat_cut_mm_map_t = std::map<matname_t, cut_mm_t>;
 mat_cut_mm_map_t LoadMaterialCuts(std::string ifilename);
 void define_hgcal_subregions(mat_cut_mm_map_t & m);
+void define_hgcal_subregions_per_material(mat_cut_mm_map_t & m);
 void define_original_hgcal_region();
 
 
@@ -127,7 +128,8 @@ int main(int argc, char** argv)
         define_original_hgcal_region();
     else if( productioncut_type == "new_cuts"){
         auto mat_cut_map = LoadMaterialCuts("material_cut_mm.txt");
-        define_hgcal_subregions(mat_cut_map);
+//         define_hgcal_subregions(mat_cut_map);
+        define_hgcal_subregions_per_material(mat_cut_map);
     }
     else
         std::cout << "Warning, no regions are being defined\n";
@@ -187,6 +189,45 @@ mat_cut_mm_map_t LoadMaterialCuts(std::string matcut_filename)
     return material_cut_mm_map;
 }
 
+void define_material_region(matname_t imatname, cut_mm_t icut)
+{
+    auto HGCalEEmatRegion = new G4Region("HGCalEE" + imatname + "Region");
+    // assign cuts
+    auto HGCalEEmatcuts = new G4ProductionCuts();
+    // Set cut values (in mm)
+    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalEEmatRegion->SetProductionCuts(HGCalEEmatcuts);
+    // ----------------------------------------------------------
+    if("global" == imatname)
+    {
+        G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+        auto HGCal_lv = lv_store->GetVolume("HGCal");
+        HGCalEEmatRegion->AddRootLogicalVolume(HGCal_lv);
+        return;
+    }
+
+    // assign root volumes according to G4Material
+    const G4Material * mat_ptr = G4Material::GetMaterial(imatname);
+    if(! mat_ptr)
+        throw std::runtime_error("Input material <" + imatname + "> does not exist");
+
+    G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+    for (const auto& lv : *lv_store)
+    {
+        if( lv->GetMaterial() == mat_ptr )
+            HGCalEEmatRegion->AddRootLogicalVolume(lv);
+    }
+    return;
+}
+
+void define_hgcal_subregions_per_material(mat_cut_mm_map_t & material_cut_mm_map)
+{
+    for( auto [matname, cut_mm] : material_cut_mm_map)
+         define_material_region(matname, cut_mm);
+}
 
 void define_hgcal_subregions(mat_cut_mm_map_t & material_cut_mm_map)
 {
