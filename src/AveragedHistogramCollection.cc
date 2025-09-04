@@ -56,7 +56,7 @@ void AveragedHistogramCollection::SaveRootfile(std::string ofilename)
 {
     if( 0 == ofilename.size()) return;
 
-    TFile * ofile = TFile::Open(ofilename.c_str(), "recreate");
+    TFile * ofile = TFile::Open(ofilename.c_str(), "update");
 
     for( auto & eProfileForMaterial : this->averagedProfilePerMaterial_map)
         eProfileForMaterial.second.finalize(ofile);

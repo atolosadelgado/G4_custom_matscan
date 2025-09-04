@@ -14,7 +14,10 @@ class YourRunAction : public G4UserRunAction {
     void   BeginOfRunAction(const G4Run* run) override;
     void   EndOfRunAction(const G4Run* run) override;
 
-  AveragedHistogramCollection fProfileHistograms;
+  // collection of material-histogram, where the histogram
+  // is averaged over the run (average of event histograms)
+  AveragedHistogramCollection fProfileZHistograms;
+  AveragedHistogramCollection fProfileXYHistograms;
   std::string _ofilename;
 
 };

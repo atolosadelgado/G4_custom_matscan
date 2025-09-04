@@ -8,11 +8,13 @@
 #include "YourRunAction.hh"
 
 #include "HistogramCollection.hh"
+#include "G4ThreeVector.hh"
+#include "MyPrimaryGenerator.hh"
 
 class YourEventAction : public G4UserEventAction {
 public:
 
-  YourEventAction(YourRunAction * myRunAction);
+  YourEventAction(YourRunAction * myRunAction, MyPrimaryGenerator* gen);
   ~YourEventAction() override;
 
   void BeginOfEventAction(const G4Event* evt) override;
@@ -20,6 +22,9 @@ public:
 
   // Fill profile histogram
   void FillEnergyProfileZ(G4double eDep_MeV, G4double zpos_mm, G4Material * mat);
+
+  // Fill profile histogram
+  void FillEnergyProfileXY(G4double eDep_MeV, G4ThreeVector avestep_position, G4Material * mat);
 
   // define histogram bining and range
   G4int nbins = 30000;
@@ -36,11 +41,16 @@ public:
     else
       zoffset_mm = 3.0e3*CLHEP::mm; // offset of full geometry
   }
+  std::unique_ptr<TH1D> MakeRMS_from_M2_Mean(const std::unique_ptr<TH1D> & M2, const std::unique_ptr<TH1D> & Mean);
 
 private:
   YourRunAction * fRunAction;
+  MyPrimaryGenerator * fPrimaryGenerator;
 
-  HistogramCollection fHistogramCollection_map;
+  // map of material-histogram, to be filled during one
+  // event, and reset before starting next one
+  HistogramCollection fHistogramCollectionProfileZ_map;
+  HistogramCollection fHistogramCollectionProfileXY_map;
 
 
 };

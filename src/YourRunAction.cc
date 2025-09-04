@@ -24,12 +24,15 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
     auto zmin = your_evt_action->zmin;
     auto zmax = your_evt_action->zmax;
 
-    this->fProfileHistograms.Initialize("E_vs_z_averaged", nbins, zmin, zmax);
+    this->fProfileZHistograms.Initialize("E_vs_z_averaged", nbins, zmin, zmax);
+    this->fProfileXYHistograms.Initialize("XY_vs_z_averaged", nbins, zmin, zmax);
+
 
 }
 
 void YourRunAction::EndOfRunAction(const G4Run* ){
-    this->fProfileHistograms.SaveRootfile(_ofilename);
+    this->fProfileZHistograms.SaveRootfile(_ofilename);
+    this->fProfileXYHistograms.SaveRootfile(_ofilename);
 
 }
 

@@ -41,12 +41,13 @@ void YourActionInitialization::BuildForMaster() const {
 // - for worker threads (will be invoked later by all worker G4RunManager-s)
 void YourActionInitialization::Build() const {
   // Set UserPrimaryGeneratorAction
-  SetUserAction(new MyPrimaryGenerator());
+  MyPrimaryGenerator * gen = new MyPrimaryGenerator();
+  SetUserAction(gen);
   // Set UserRunAction
   YourRunAction* runAction = new YourRunAction(_ofilename);
   SetUserAction(runAction);
   // Set UserEventAction
-  YourEventAction* eventAction = new YourEventAction(runAction);
+  YourEventAction* eventAction = new YourEventAction(runAction,gen);
   SetUserAction(eventAction);
   // Set UserSteppingAction
   SetUserAction( new YourSteppingAction(eventAction) );

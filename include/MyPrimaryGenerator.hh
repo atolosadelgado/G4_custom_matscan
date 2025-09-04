@@ -3,6 +3,7 @@
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ParticleGun.hh"
+#include "G4Event.hh"
 
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {
@@ -14,7 +15,11 @@ public:
         std::cout << "Event " << counter << std::endl;
         counter++;
         fParticleGun->GeneratePrimaryVertex(anEvent);
+        x0_mm = anEvent->GetPrimaryVertex(0)->GetPosition().x() / CLHEP::mm;
+        y0_mm = anEvent->GetPrimaryVertex(0)->GetPosition().y() / CLHEP::mm;
     }
+    G4double x0_mm{-999.};
+    G4double y0_mm{-999.};
 private:
     G4ParticleGun* fParticleGun;
     int counter = {0};
