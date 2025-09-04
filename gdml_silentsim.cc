@@ -225,10 +225,17 @@ void define_material_region(matname_t imatname, cut_mm_t icut)
     if(! mat_ptr)
         throw std::runtime_error("Input material <" + imatname + "> does not exist");
 
+    // lambda to check if name of LV starts by "HGCal"
+    // and therefore the volume belong to it
+    auto Is_HGCal_LV = [](G4LogicalVolume * lv)-> bool {
+        std::string s = lv->GetName();
+        return s.compare(0, 5, "HGCal") == 0;
+    };
+
     G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
     for (const auto& lv : *lv_store)
     {
-        if( lv->GetMaterial() == mat_ptr )
+        if( Is_HGCal_LV(lv) && lv->GetMaterial() == mat_ptr )
             HGCalEEmatRegion->AddRootLogicalVolume(lv);
     }
     return;
