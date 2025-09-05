@@ -61,12 +61,12 @@ include(${ROOT_USE_FILE})
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(load_gdml load_gdml.cc ${sources} ${headers})
-add_executable(hgcal_sim hgcal_sim.cc ${sources} ${headers})
-target_link_libraries(load_gdml ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
-target_link_libraries(hgcal_sim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+# add_executable(load_gdml load_gdml.cc ${sources} ${headers})
+# add_executable(hgcal_sim hgcal_sim.cc ${sources} ${headers})
+# target_link_libraries(load_gdml ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+# target_link_libraries(hgcal_sim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
-add_executable(gdml_sim gdml_silentsim.cc ${sources} ${headers})
+add_executable(gdml_sim gdml_sim.cc ${sources} ${headers})
 target_link_libraries(gdml_sim ${Geant4_LIBRARIES}  ${ROOT_LIBRARIES})
 
 #add_executable(gdml_sim_secondaries gdml_silentsim.cc ${sources} ${headers})
@@ -98,5 +98,5 @@ add_custom_target(G01 DEPENDS load_gdml)
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS load_gdml DESTINATION bin)
+install(TARGETS gdml_sim DESTINATION bin)
 
