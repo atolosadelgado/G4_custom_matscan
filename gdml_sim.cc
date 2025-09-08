@@ -10,12 +10,14 @@
 #include "G4VisExecutive.hh"
 
 
-using matname_t = std::string;
-using cut_mm_t = double;
-using mat_cut_mm_map_t = std::map<matname_t, cut_mm_t>;
-mat_cut_mm_map_t LoadMaterialCuts(std::string ifilename);
-void define_hgcal_subregions(mat_cut_mm_map_t & m);
-void define_hgcal_subregions_per_material(mat_cut_mm_map_t & m);
+struct mat_cut_couple_t{
+    std::string matname;
+    std::string lvname_pattern;
+    double cut_mm;
+};
+using matcut_couples_t = std::vector<mat_cut_couple_t>;
+matcut_couples_t LoadMaterialCuts(const std::string & ifilename);
+void define_hgcal_subregions_per_material(matcut_couples_t & m);
 void define_original_hgcal_region();
 
 
@@ -30,8 +32,21 @@ public:
         Parser.Read(gdml_filename, false);
         this->worldPV = Parser.GetWorldVolume();
     };
-    virtual G4VPhysicalVolume* Construct(){return worldPV;}
+    void SetProductionCutType(std::string _s){productioncut_type=_s;};
+    virtual G4VPhysicalVolume* Construct(){
+            // option for regions
+            if( productioncut_type == "original_cuts")
+                define_original_hgcal_region();
+            else if( productioncut_type == "new_cuts"){
+                auto mat_cut_map = LoadMaterialCuts("material_cut_mm.txt");
+        //         define_hgcal_subregions(mat_cut_map);
+                define_hgcal_subregions_per_material(mat_cut_map);
+            }
+            else
+                std::cout << "Warning, no regions are being defined\n";
+        return worldPV;}
     G4VPhysicalVolume * worldPV = {nullptr};
+    std::string productioncut_type;
 };
 //________________________________________________________________________________
 
@@ -102,6 +117,7 @@ int main(int argc, char** argv)
 
     YourDetectorConstructor * user_detector_constructor = new YourDetectorConstructor();
     user_detector_constructor->LoadGDML(geometry_filename);
+    user_detector_constructor->SetProductionCutType(productioncut_type);
     runManager->SetUserInitialization(user_detector_constructor);
 
 
@@ -125,6 +141,10 @@ int main(int argc, char** argv)
     else{
         std::cerr << "No actions!" << std::endl;
     }
+        // Get the pointer to the User Interface manager
+    G4UImanager* UImanager = G4UImanager::GetUIpointer();
+    UImanager->ApplyCommand("/cuts/verbose 3");
+
     runManager->Initialize();
 
     // Initialize visualization
@@ -134,27 +154,6 @@ int main(int argc, char** argv)
     // if BeamOn(0) is not there, it crashes...
     runManager->BeamOn(0);
 
-    // option for regions
-    if( productioncut_type == "original_cuts")
-        define_original_hgcal_region();
-    else if( productioncut_type == "new_cuts"){
-        auto mat_cut_map = LoadMaterialCuts("material_cut_mm.txt");
-//         define_hgcal_subregions(mat_cut_map);
-        define_hgcal_subregions_per_material(mat_cut_map);
-    }
-    else
-        std::cout << "Warning, no regions are being defined\n";
-
-    G4RunManager::GetRunManager()->GeometryHasBeenModified();
-    G4RunManager::GetRunManager()->PhysicsHasBeenModified();
-    G4ProductionCutsTable::GetProductionCutsTable()->UpdateCoupleTable(user_detector_constructor->worldPV);
-
-    // this line makes program crash
-    // runManager->ReinitializeGeometry(true);
-
-
-    // Get the pointer to the User Interface manager
-    G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
 
 
@@ -186,22 +185,57 @@ int main(int argc, char** argv)
 #include <G4Material.hh>
 #include "G4RegionStore.hh"
 
-#include <fstream>
-mat_cut_mm_map_t LoadMaterialCuts(std::string matcut_filename)
-{
-    mat_cut_mm_map_t material_cut_mm_map;
-    std::ifstream ifile(matcut_filename);
-    std::string matname;
-    double cut_mm;
-    while(ifile >> matname >> cut_mm)
-    {
-        material_cut_mm_map.emplace( matname, cut_mm );
+#include <sstream>
+std::vector<std::string> tokenizeByTab(const std::string& line) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(line);
+    std::string token;
+    while (std::getline(ss, token, '\t')) {
+        tokens.push_back(token);
     }
+    return tokens;
+}
+#include <fstream>
+matcut_couples_t LoadMaterialCuts(const std::string& matcut_filename)
+{
+    matcut_couples_t material_cut_mm_map;
+    std::ifstream ifile(matcut_filename);
+    if (!ifile) {
+        std::cerr << "Error opening file: " << matcut_filename << std::endl;
+        return material_cut_mm_map;
+    }
+
+    std::string line;
+    while (std::getline(ifile, line)) {
+        if (line.empty()) continue;
+
+        auto tokens = tokenizeByTab(line);
+
+        if (tokens.size() != 3) {
+            std::cerr << "Warning: ignoring line, " << line << std::endl;
+            continue;
+        }
+
+        try {
+            std::string matname = tokens[0];
+            std::string lvname_pattern = tokens[1];
+            double cut_mm = std::stod(tokens[2]); // string to double
+
+            material_cut_mm_map.push_back({matname, lvname_pattern, cut_mm});
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing line: " << line << " (" << e.what() << ")" << std::endl;
+        }
+    }
+
     return material_cut_mm_map;
 }
 
-void define_material_region(matname_t imatname, cut_mm_t icut)
+
+
+void define_material_region(mat_cut_couple_t & couple)
 {
+    std::string imatname = couple.matname;
+    double icut = couple.cut_mm;
     auto HGCalEEmatRegion = new G4Region("HGCalEE" + imatname + "Region");
     // assign cuts
     auto HGCalEEmatcuts = new G4ProductionCuts();
@@ -227,159 +261,29 @@ void define_material_region(matname_t imatname, cut_mm_t icut)
 
     // lambda to check if name of LV starts by "HGCal"
     // and therefore the volume belong to it
-    auto Is_HGCal_LV = [](G4LogicalVolume * lv)-> bool {
-        std::string s = lv->GetName();
-        return s.compare(0, 5, "HGCal") == 0;
+    std::regex lvname_pattern(couple.lvname_pattern);
+    auto Is_HGCal_LV = [&](G4LogicalVolume * lv)-> bool {
+        // return true;
+        return std::regex_match( lv->GetName(), lvname_pattern);
     };
 
     G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
     for (const auto& lv : *lv_store)
     {
-        if( Is_HGCal_LV(lv) && lv->GetMaterial() == mat_ptr )
+        if( (lv->GetMaterial() == mat_ptr) && Is_HGCal_LV(lv) )
             HGCalEEmatRegion->AddRootLogicalVolume(lv);
     }
     return;
 }
-
-void define_hgcal_subregions_per_material(mat_cut_mm_map_t & material_cut_mm_map)
+#include "G4LossTableManager.hh"
+#include "G4LossTableBuilder.hh"
+#include "G4Electron.hh"
+void define_hgcal_subregions_per_material(matcut_couples_t & matcut_couples)
 {
-    for( auto [matname, cut_mm] : material_cut_mm_map)
-         define_material_region(matname, cut_mm);
+    for( auto & couple : matcut_couples)
+         define_material_region(couple);
 }
 
-void define_hgcal_subregions(mat_cut_mm_map_t & material_cut_mm_map)
-{
-
-    // 1. Define master region of HGCal
-    {
-        auto HGCalRegion = new G4Region("HGCalRegion");
-        // assign cuts
-        auto HGCalcuts = new G4ProductionCuts();
-        // Set cut values (in mm)
-        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalcuts->SetProductionCut(material_cut_mm_map["global"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-        HGCalRegion->SetProductionCuts(HGCalcuts);
-        // ----------------------------------------------------------
-        // assign root volumes
-        G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
-        auto HGCal_lv = lv_store->GetVolume("HGCal");
-        HGCalRegion->AddRootLogicalVolume(HGCal_lv);
-    }
-
-    // 2. Define subregion of EE for sensitive parts made of silicon
-    {
-        auto HGCalEEsiliconRegion = new G4Region("HGCalEEsiliconRegion");
-        // assign cuts
-        auto HGCalEEsiliconCuts = new G4ProductionCuts();
-        // Set cut values (in mm)
-        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEsiliconCuts->SetProductionCut(material_cut_mm_map["Silicon"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-        HGCalEEsiliconRegion->SetProductionCuts(HGCalEEsiliconCuts);
-        // ----------------------------------------------------------
-        // assign root volumes
-        const G4Material * si_material = G4Material::GetMaterial("Silicon");
-        G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
-        for (const auto& lv : *lv_store)
-        {
-            if( lv->GetMaterial() == si_material )
-                HGCalEEsiliconRegion->AddRootLogicalVolume(lv);
-        }
-    }
-
-
-    // 3. Define subregion of EE for passive parts near silicon
-    // -- TODO: this approach is conservative since even volumes further from the silicon
-    // --       are included here. Volumes far away from the silicon may have higher threshold
-    {
-        auto HGCalEEkaptonCopperRegion = new G4Region("HGCalEEkaptonCopperRegion");
-        // assign cuts
-        auto HGCalEEkaptonCopperCuts = new G4ProductionCuts();
-        // Set cut values (in mm)
-        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEkaptonCopperCuts->SetProductionCut(material_cut_mm_map["KaptonCopper"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-        HGCalEEkaptonCopperRegion->SetProductionCuts(HGCalEEkaptonCopperCuts);
-        // ----------------------------------------------------------
-        // assign root volumes
-        const G4Material * kapton_material = G4Material::GetMaterial("Kapton");
-        const G4Material * copper_material = G4Material::GetMaterial("Copper");
-        G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
-        for (const auto& lv : *lv_store)
-        {
-            if( lv->GetMaterial() == kapton_material || lv->GetMaterial() == copper_material )
-                HGCalEEkaptonCopperRegion->AddRootLogicalVolume(lv);
-        }
-    }
-
-    // 4. Define subregion of EE for absorber WCu
-    {
-        auto HGCalEEwcuRegion = new G4Region("HGCalEEwcuRegion");
-        // assign cuts
-        auto HGCalEEwcuCuts = new G4ProductionCuts();
-        // Set cut values (in mm)
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["WCu"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-        HGCalEEwcuRegion->SetProductionCuts(HGCalEEwcuCuts);
-        // ----------------------------------------------------------
-        // assign root volumes
-        const G4Material * si_material = G4Material::GetMaterial("WCu");
-        G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
-        for (const auto& lv : *lv_store)
-        {
-            if( lv->GetMaterial() == si_material )
-                HGCalEEwcuRegion->AddRootLogicalVolume(lv);
-        }
-    }
-    // 5. Define subregion of EE for absorber Pb
-    {
-        auto HGCalEEwcuRegion = new G4Region("HGCalEEpbRegion");
-        // assign cuts
-        auto HGCalEEwcuCuts = new G4ProductionCuts();
-        // Set cut values (in mm)
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEwcuCuts->SetProductionCut(material_cut_mm_map["Lead"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-        HGCalEEwcuRegion->SetProductionCuts(HGCalEEwcuCuts);
-        // ----------------------------------------------------------
-        // assign root volumes
-        const G4Material * si_material = G4Material::GetMaterial("Lead");
-        G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
-        for (const auto& lv : *lv_store)
-        {
-            if( lv->GetMaterial() == si_material )
-                HGCalEEwcuRegion->AddRootLogicalVolume(lv);
-        }
-    }
-    // 6. Define subregion of EE for absorber StainlessSteel
-    {
-        auto HGCalEEwcuRegion = new G4Region("HGCalEEstainlesstealRegion");
-        // assign cuts
-        auto HGCalEEstainlesssteelCuts = new G4ProductionCuts();
-        // Set cut values (in mm)
-        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-        HGCalEEstainlesssteelCuts->SetProductionCut(material_cut_mm_map["StainlessSteel"] * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
-        HGCalEEwcuRegion->SetProductionCuts(HGCalEEstainlesssteelCuts);
-        // ----------------------------------------------------------
-        // assign root volumes
-        const G4Material * si_material = G4Material::GetMaterial("StainlessSteel");
-        G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
-        for (const auto& lv : *lv_store)
-        {
-            if( lv->GetMaterial() == si_material )
-                HGCalEEwcuRegion->AddRootLogicalVolume(lv);
-        }
-    }
-}
 
 void define_original_hgcal_region()
 {

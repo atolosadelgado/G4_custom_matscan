@@ -1,11 +1,11 @@
-global 3
-Silicon 0.03
-Kapton 0.1
-Copper 0.1
-WCu 0.3
-Lead 2
-StainlessSteel 0.1
-HGC_EEConnector 0.1
-HGC_G10-FR4 0.1
-Epoxy 0.1
+global	^HGCal.*	3
+Silicon	^HGCal.*	0.03
+Kapton	^HGCal.*	0.1
+Copper	^HGCal.*	0.1
+WCu	^HGCal.*	0.3
+Lead	^HGCal.*	2
+StainlessSteel	^HGCal.*	0.1
+HGC_EEConnector	^HGCal.*	0.1
+HGC_G10-FR4	^HGCal.*	0.1
+Epoxy	^HGCal.*	0.1
 

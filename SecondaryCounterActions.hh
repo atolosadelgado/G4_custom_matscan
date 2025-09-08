@@ -121,7 +121,7 @@ public:
     }
 
     virtual void BeginOfRunAction(const G4Run*) override {
-        fFile = new TFile(fOfilename.c_str(), "update");
+        fFile = new TFile(fOfilename.c_str(), "recreate");
         fHistTotal = (TH1D*) fFile->Get("hTotalSecondaries");
         if(nullptr == fHistTotal)
             fHistTotal = new TH1D("hTotalSecondaries", "Total secondaries per event", 1000, 0, 1e5);
