@@ -23,6 +23,8 @@
 /gun/number 1
 
 /run/dumpRegion
+/cuts/verbose 3
 
+/random/setSeeds 12345 67890
 
-/run/beamOn 300
+/run/beamOn 200
