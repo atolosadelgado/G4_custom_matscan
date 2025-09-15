@@ -9,6 +9,9 @@
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
 
+#include "G4PhysicalVolumeStore.hh"
+
+#include <G4LogicalVolumeStore.hh>
 
 struct mat_cut_couple_t{
     std::string matname;
@@ -53,6 +56,15 @@ public:
 #include "SecondaryCounterActions.hh"
 #include "SecondaryCounterPerMaterialActions.hh"
 #include "YourActionInitialization.hh"
+
+#include "MyPrimaryGenerator.hh"
+#include "G4VUserActionInitialization.hh"
+class YourActionInitializationForGunOnly : public G4VUserActionInitialization {
+public:
+    YourActionInitializationForGunOnly(): G4VUserActionInitialization(){ }
+    ~YourActionInitializationForGunOnly() override {}
+    void Build() const override { SetUserAction(new MyPrimaryGenerator()); }
+};
 
 //________________________________________________________________________________
 #include <iostream>
@@ -139,6 +151,7 @@ int main(int argc, char** argv)
         runManager->SetUserInitialization(new secondaryCounterPerMaterial_YourActionInit(ofilename));
     }
     else{
+        runManager->SetUserInitialization(new YourActionInitializationForGunOnly());
         std::cerr << "No actions!" << std::endl;
     }
         // Get the pointer to the User Interface manager
@@ -153,6 +166,37 @@ int main(int argc, char** argv)
 
     // if BeamOn(0) is not there, it crashes...
     runManager->BeamOn(0);
+
+    // {
+    //     G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
+    //     TH1D * hNdaughers = new TH1D("hNdaughers","",1e4,0,1e4);
+    //     TH1D * hNentities = new TH1D("hNentities","",1e4,0,1e4);
+    //     TH1D * hNEmplacements = new TH1D("hNEmplacements","",1e4,0,1e4);
+    //     for( auto & lv : *lv_store){
+    //         hNdaughers->Fill( lv->GetNoDaughters() );
+    //         hNentities->Fill( lv->TotalVolumeEntities() );
+    //     }
+    //     std::map<const G4LogicalVolume*, int> lvUseCount;
+    //     G4PhysicalVolumeStore * pv_store = G4PhysicalVolumeStore::GetInstance();
+    //     for (auto pv : *pv_store) {
+    //         if (pv) {
+    //             const G4LogicalVolume* lv = pv->GetLogicalVolume();
+    //             lvUseCount[lv]++;
+    //         }
+    //     }
+    //     for( auto [lv, n] : lvUseCount)
+    //     {
+    //         hNEmplacements->Fill(n);
+    //         if(n>500)
+    //             std::cout << "Warning, placed more than 500 times: " << lv->GetName() << std::endl;
+    //     };
+    //
+    //     TFile * ofile = new TFile("hgcal_daughtervolumes.root","recreate");
+    //     hNdaughers->Write();
+    //     hNentities->Write();
+    //     hNEmplacements->Write();
+    //     ofile->Close();
+    // }
 
 
 
@@ -180,7 +224,6 @@ int main(int argc, char** argv)
 }
 
 
-#include <G4LogicalVolumeStore.hh>
 #include <G4LogicalVolume.hh>
 #include <G4Material.hh>
 #include "G4RegionStore.hh"
@@ -208,6 +251,8 @@ matcut_couples_t LoadMaterialCuts(const std::string& matcut_filename)
     std::string line;
     while (std::getline(ifile, line)) {
         if (line.empty()) continue;
+        // ignore lines starting by #
+        if ( '#' == line.at(0) ) continue;
 
         auto tokens = tokenizeByTab(line);
 
@@ -245,7 +290,7 @@ void define_material_region(mat_cut_couple_t & couple)
     std::string imatname = couple.matname;
     std::string lvname_pattern_str = couple.lvname_pattern;
     double icut = couple.cut_mm;
-    auto HGCalEEmatRegion = new G4Region("HGCalEE" + imatname + lvname_pattern_str + "Region");
+    auto HGCalEEmatRegion = new G4Region("Region" + lvname_pattern_str + imatname);
     // assign cuts
     auto HGCalEEmatcuts = new G4ProductionCuts();
     // Set cut values (in mm)
