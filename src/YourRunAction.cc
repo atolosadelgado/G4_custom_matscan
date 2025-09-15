@@ -24,8 +24,8 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
     auto zmin = your_evt_action->zmin;
     auto zmax = your_evt_action->zmax;
 
-    this->fProfileZHistograms.Initialize("E_vs_z_averaged", nbins, zmin, zmax);
-    this->fProfileXYHistograms.Initialize("XY_vs_z_averaged", nbins, zmin, zmax);
+    this->fProfileZHistograms.Initialize("E_vs_z_averaged", "Deposited energy as function of Z; Z (mm); E (MeV)", nbins, zmin, zmax);
+    this->fProfileXYHistograms.Initialize("R_vs_z_averaged", "Radius (XY, energy weighted) as function of Z; Z (mm); R (mm)", nbins, zmin, zmax);
 
 
 }

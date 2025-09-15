@@ -62,6 +62,11 @@ public:
         accumulators.resize(nbins + 1); // bins are 1-indexed in ROOT
         hist = std::make_unique<TH1D>(name.c_str(), "", nbins, xmin, xmax);
     }
+    AveragedHistogram(const std::string& name,const std::string& title, int nbins, double xmin, double xmax)
+        : name(name), nbins(nbins) {
+        accumulators.resize(nbins + 1); // bins are 1-indexed in ROOT
+        hist = std::make_unique<TH1D>(name.c_str(), title.c_str(), nbins, xmin, xmax);
+    }
 
     void update(const TH1D& h) {
         for (int i = 1; i <= nbins; ++i) {

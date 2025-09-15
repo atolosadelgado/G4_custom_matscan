@@ -81,6 +81,9 @@ std::unique_ptr<TH1D> YourEventAction::MakeRMS_from_M2_Mean(const std::unique_pt
       sigma_r_h->SetBinContent(i, sqrt(sigma_rr) );
       sigma_r_h->SetBinError(i, 0.5*sigma_rr_error/sqrt(sigma_rr) );
     }
+    // sigma_r_h->SetTitle("RMS (mm) as function of Z (mm)");
+    // sigma_r_h->SetXTitle("Z (mm)");
+    // sigma_r_h->SetYTitle("RMS (mm)");
     return sigma_r_h;
 }
 

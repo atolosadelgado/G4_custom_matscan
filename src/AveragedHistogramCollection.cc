@@ -6,7 +6,7 @@
 
 #include "MyWatch.hh"
 
-void AveragedHistogramCollection::Initialize(std::string histo_basename, int nbins_input, double zmin_input, double zmax_input)
+void AveragedHistogramCollection::Initialize(std::string histo_basename, std::string title, int nbins_input, double zmin_input, double zmax_input)
 {
 
   // report time of initialization
@@ -32,7 +32,7 @@ void AveragedHistogramCollection::Initialize(std::string histo_basename, int nbi
       averagedProfilePerMaterial_map.emplace(
           std::piecewise_construct,
           std::forward_as_tuple(material),
-          std::forward_as_tuple(histo_name, nbins, zmin, zmax)
+          std::forward_as_tuple(histo_name, title, nbins, zmin, zmax)
       );
       // std::cout << "\t-New histogram: " << histo_name << std::endl;
   }

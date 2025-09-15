@@ -17,10 +17,11 @@ Copper	^HGCalEEAbsorberCopper.*	0.1
 Copper	^HGCalEECoolingPlate.*	3
 
 # HE cuts
+Polystyrene	^HGCalScintillator.*	0.03
+H_Scintillator	^HGCalHEScintillatorSensitive.*	0.03
 Kapton	^HGCalHEKapton.*	0.03
 Copper	^HGCalHECoolingPlate.*	3
 HGC_HEConnector	^HGCal.*	0.1
 StainlessSteel	^HGCalHESteelCover.*	2.0
 StainlessSteel	^HGCalHEAbsorber.*	41.5
 StainlessSteel	^HGCalBackPlate.*	100
-

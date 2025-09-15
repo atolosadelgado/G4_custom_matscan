@@ -17,7 +17,7 @@ public:
     double zmax = {-1.0};
 
     // initialize internal histograms of energy profile
-    void Initialize(std::string histo_basename, int nbins_input, double zmin_input, double zmax_input);
+    void Initialize(std::string histo_basename, std::string title, int nbins_input, double zmin_input, double zmax_input);
 
     // updates internal histograms of energy profile after the event
     void UpdateAverageAndMean(const TH1D& h, G4Material * mat);
