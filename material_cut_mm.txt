@@ -1,11 +1,26 @@
-global	^HGCal.*	3
+# list of material, logical volume regex and cut (in mm)
+# global cut, if exact regex, material is ignored
+global	HGCal	3
+# common materials to EE and HE
+Epoxy	^HGCal.*	0.1
+HGC_G10-FR4	^HGCal.*	0.1
 Silicon	^HGCal.*	0.03
-Kapton	^HGCal.*	0.1
-Copper	^HGCal.*	0.1
+
+
+# EE cuts
+Kapton	^HGCalEEKapton.*	0.1
 WCu	^HGCal.*	0.3
 Lead	^HGCal.*	2
-StainlessSteel	^HGCal.*	0.1
+StainlessSteel	^HGCalEEAbsorberStainlessSteel.*	0.1
 HGC_EEConnector	^HGCal.*	0.1
-HGC_G10-FR4	^HGCal.*	0.1
-Epoxy	^HGCal.*	0.1
+Copper	^HGCalEEAbsorberCopper.*	0.1
+Copper	^HGCalEECoolingPlate.*	3
+
+# HE cuts
+Kapton	^HGCalHEKapton.*	0.03
+Copper	^HGCalHECoolingPlate.*	3
+HGC_HEConnector	^HGCal.*	0.1
+StainlessSteel	^HGCalHESteelCover.*	2.0
+StainlessSteel	^HGCalHEAbsorber.*	41.5
+StainlessSteel	^HGCalBackPlate.*	100
 

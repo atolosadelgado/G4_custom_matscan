@@ -231,12 +231,21 @@ matcut_couples_t LoadMaterialCuts(const std::string& matcut_filename)
 }
 
 
+bool isExactName(const std::string& pattern) {
+    const std::string regex_metachars = ".^$*+?()[]{}|\\";
+    for (char c : pattern) {
+        if (regex_metachars.find(c) != std::string::npos)
+            return false; // it has this metacharacter
+    }
+    return true; // no regex_metachars, exact name
+}
 
 void define_material_region(mat_cut_couple_t & couple)
 {
     std::string imatname = couple.matname;
+    std::string lvname_pattern_str = couple.lvname_pattern;
     double icut = couple.cut_mm;
-    auto HGCalEEmatRegion = new G4Region("HGCalEE" + imatname + "Region");
+    auto HGCalEEmatRegion = new G4Region("HGCalEE" + imatname + lvname_pattern_str + "Region");
     // assign cuts
     auto HGCalEEmatcuts = new G4ProductionCuts();
     // Set cut values (in mm)
@@ -246,10 +255,11 @@ void define_material_region(mat_cut_couple_t & couple)
     HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
     HGCalEEmatRegion->SetProductionCuts(HGCalEEmatcuts);
     // ----------------------------------------------------------
-    if("global" == imatname)
+    // if lvname_pattern_str is an exact name (no regex_metachars), ignore material and define region
+    if( isExactName(lvname_pattern_str) )
     {
         G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
-        auto HGCal_lv = lv_store->GetVolume("HGCal");
+        auto HGCal_lv = lv_store->GetVolume(lvname_pattern_str);
         HGCalEEmatRegion->AddRootLogicalVolume(HGCal_lv);
         return;
     }
@@ -261,8 +271,8 @@ void define_material_region(mat_cut_couple_t & couple)
 
     // lambda to check if name of LV starts by "HGCal"
     // and therefore the volume belong to it
-    std::regex lvname_pattern(couple.lvname_pattern);
-    auto Is_HGCal_LV = [&](G4LogicalVolume * lv)-> bool {
+    std::regex lvname_pattern(lvname_pattern_str);
+    auto MatchLVregex = [&](G4LogicalVolume * lv)-> bool {
         // return true;
         return std::regex_match( lv->GetName(), lvname_pattern);
     };
@@ -270,7 +280,7 @@ void define_material_region(mat_cut_couple_t & couple)
     G4LogicalVolumeStore * lv_store = G4LogicalVolumeStore::GetInstance();
     for (const auto& lv : *lv_store)
     {
-        if( (lv->GetMaterial() == mat_ptr) && Is_HGCal_LV(lv) )
+        if( (lv->GetMaterial() == mat_ptr) && MatchLVregex(lv) )
             HGCalEEmatRegion->AddRootLogicalVolume(lv);
     }
     return;
