@@ -124,23 +124,23 @@ public:
         fFile = new TFile(fOfilename.c_str(), "recreate");
         fHistTotal = (TH1D*) fFile->Get("hTotalSecondaries");
         if(nullptr == fHistTotal)
-            fHistTotal = new TH1D("hTotalSecondaries", "Total secondaries per event", 1000, 0, 1e5);
+            fHistTotal = new TH1D("hTotalSecondaries", "Total secondaries per event", 30000, 0, 3e6);
         fHistElectrons = (TH1D*) fFile->Get("hElectrons");
         if(nullptr == fHistElectrons)
-            fHistElectrons = new TH1D("hElectrons", "Electrons per event", 1000, 0, 1e5);
+            fHistElectrons = new TH1D("hElectrons", "Electrons per event", 30000, 0, 3e6);
         fHistGammas = (TH1D*) fFile->Get("hGammas");
         if(nullptr == fHistGammas)
-        fHistGammas = new TH1D("hGammas", "Gammas per event", 1000, 0, 1e5);
+        fHistGammas = new TH1D("hGammas", "Gammas per event", 30000, 0, 3e6);
 
         fHistTotalEscaping = (TH1D*) fFile->Get("hTotalSecondariesEscaping");
         if(nullptr == fHistTotalEscaping)
-            fHistTotalEscaping = new TH1D("hTotalSecondariesEscaping", "Total secondaries Escaping per event", 1000, 0, 1e5);
+            fHistTotalEscaping = new TH1D("hTotalSecondariesEscaping", "Total secondaries Escaping per event", 30000, 0, 3e6);
         fHistElectronsEscaping = (TH1D*) fFile->Get("hElectronsEscaping");
         if(nullptr == fHistElectronsEscaping)
-            fHistElectronsEscaping = new TH1D("hElectronsEscaping", "Electrons Escaping per event", 1000, 0, 1e5);
+            fHistElectronsEscaping = new TH1D("hElectronsEscaping", "Electrons Escaping per event", 30000, 0, 3e6);
         fHistGammasEscaping = (TH1D*) fFile->Get("hGammasEscaping");
         if(nullptr == fHistGammasEscaping)
-        fHistGammasEscaping = new TH1D("hGammasEscaping", "Gammas Escaping per event", 1000, 0, 1e5);
+        fHistGammasEscaping = new TH1D("hGammasEscaping", "Gammas Escaping per event", 30000, 0, 3e6);
     }
 
     virtual void EndOfRunAction(const G4Run*) override {
