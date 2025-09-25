@@ -2,7 +2,7 @@
 #ifndef YOUREVENTACTION_HH
 #define YOUREVENTACTION_HH
 
-#include "G4Material.hh"
+class G4Material;
 
 #include "G4UserEventAction.hh"
 #include "YourRunAction.hh"
@@ -48,7 +48,6 @@ private:
   MyPrimaryGenerator * fPrimaryGenerator;
   double event_energy_in_sensitiveVols_MeV = 0;
   double event_energy_in_allVols_MeV = 0;
-  std::vector<G4Material*> sensitive_mats;
 
   // map of material-histogram, to be filled during one
   // event, and reset before starting next one

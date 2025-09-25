@@ -6,6 +6,8 @@
 
 #include "TH1D.h"
 
+#include "G4Material.hh"
+
 YourRunAction::YourRunAction(std::string ofilename):G4UserRunAction(),_ofilename(ofilename){}
 
 
@@ -33,6 +35,18 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
 
     hEnergyLeakage = std::make_unique<TH1D>("hEnergyLeakage","Fraction of leaked energy;;1-E_{vis}/E_{0}",50000,0.,0.1);
     hEnergyLeakage->SetDirectory(nullptr);
+
+    if( 0 == sensitive_mats.size() )
+    {
+        sensitive_mats.push_back( G4Material::GetMaterial("Silicon") );
+        sensitive_mats.push_back( G4Material::GetMaterial("H_Scintillator") );
+    }
+
+    if( 0 == nonDetector_mats.size() )
+    {
+        nonDetector_mats.push_back( G4Material::GetMaterial("Air") );
+        nonDetector_mats.push_back( G4Material::GetMaterial("Galactic") );
+    }
 
 }
 

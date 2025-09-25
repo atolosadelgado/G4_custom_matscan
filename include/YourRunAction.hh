@@ -7,6 +7,8 @@
 class TH1D;
 #include <memory>
 
+class G4Material;
+
 class YourRunAction : public G4UserRunAction {
 
   public:
@@ -24,6 +26,10 @@ class YourRunAction : public G4UserRunAction {
   std::unique_ptr<TH1D> hSamplingFraction;
   std::unique_ptr<TH1D> hEnergyLeakage;
   std::string _ofilename;
+
+
+  std::vector<G4Material*> sensitive_mats;
+  std::vector<G4Material*> nonDetector_mats;
 
 };
 

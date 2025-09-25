@@ -3,6 +3,8 @@
 
 #include "G4EventManager.hh"
 
+#include "G4Material.hh"
+
 YourEventAction::YourEventAction(YourRunAction * myRunAction, MyPrimaryGenerator * gen)
   : G4UserEventAction(),
   fRunAction(myRunAction), fPrimaryGenerator(gen) {}
@@ -12,17 +14,13 @@ YourEventAction::~YourEventAction() {}
 
 void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
 
-  // Initialize once, afterwards it will simply reset the histograms
+  // Initialize pointers only first time, afterwards it will simply reset the histograms
   fHistogramCollectionProfileZ_map.Initialize("E_vs_z", nbins, zmin, zmax);
   fHistogramCollectionProfileXY_map.Initialize("XY_vs_z", nbins, zmin, zmax);
   // check if it is test beam, if so, change offset used in FillEnergyProfileZ method
   SetOffset();
   event_energy_in_sensitiveVols_MeV = 0;
-  if( 0 == sensitive_mats.size() )
-  {
-    sensitive_mats.push_back( G4Material::GetMaterial("Silicon") );
-    sensitive_mats.push_back( G4Material::GetMaterial("H_Scintillator") );
-  }
+
 }
 
 
@@ -56,8 +54,13 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
 void YourEventAction::FillEnergyProfileZ(G4double eDep_MeV, G4double zpos_mm, G4Material * mat)
 {
   fHistogramCollectionProfileZ_map.Fill(eDep_MeV,zpos_mm - zoffset_mm,mat);
+
+  // if mat is Air or Galactic, return to not score energy for sampling fraction and f_leakage
+  if(mat == fRunAction->nonDetector_mats[0] || mat == fRunAction->nonDetector_mats[1])
+    return;
+
   event_energy_in_allVols_MeV+=eDep_MeV;
-  if(mat == sensitive_mats[0] || mat == sensitive_mats[1])
+  if(mat == fRunAction->sensitive_mats[0] || mat == fRunAction->sensitive_mats[1])
     event_energy_in_sensitiveVols_MeV+=eDep_MeV;
 
 }
