@@ -4,7 +4,7 @@ global	HGCal	3
 # common materials to EE and HE
 Epoxy	^HGCal.*	0.1
 HGC_G10-FR4	^HGCal.*	0.1
-Silicon	^HGCal.*	0.03
+Silicon	^HGCal.*	0.5   0.03    1.0
 
 
 # EE cuts
@@ -24,4 +24,4 @@ Copper	^HGCalHECoolingPlate.*	3
 HGC_HEConnector	^HGCal.*	0.1
 StainlessSteel	^HGCalHESteelCover.*	2.0
 StainlessSteel	^HGCalHEAbsorber.*	41.5
-StainlessSteel	^HGCalBackPlate.*	100
+StainlessSteel	^HGCalBackPlate.*	100	101	102
