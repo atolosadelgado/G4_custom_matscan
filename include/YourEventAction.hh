@@ -46,6 +46,9 @@ public:
 private:
   YourRunAction * fRunAction;
   MyPrimaryGenerator * fPrimaryGenerator;
+  double event_energy_in_sensitiveVols_MeV = 0;
+  double event_energy_in_allVols_MeV = 0;
+  std::vector<G4Material*> sensitive_mats;
 
   // map of material-histogram, to be filled during one
   // event, and reset before starting next one

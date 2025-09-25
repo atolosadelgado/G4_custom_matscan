@@ -4,6 +4,8 @@
 #include "G4UserRunAction.hh"
 
 #include "AveragedHistogramCollection.hh"
+class TH1D;
+#include <memory>
 
 class YourRunAction : public G4UserRunAction {
 
@@ -18,6 +20,9 @@ class YourRunAction : public G4UserRunAction {
   // is averaged over the run (average of event histograms)
   AveragedHistogramCollection fProfileZHistograms;
   AveragedHistogramCollection fProfileXYHistograms;
+
+  std::unique_ptr<TH1D> hSamplingFraction;
+  std::unique_ptr<TH1D> hEnergyLeakage;
   std::string _ofilename;
 
 };

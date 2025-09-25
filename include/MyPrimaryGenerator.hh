@@ -17,9 +17,12 @@ public:
         fParticleGun->GeneratePrimaryVertex(anEvent);
         x0_mm = anEvent->GetPrimaryVertex(0)->GetPosition().x() / CLHEP::mm;
         y0_mm = anEvent->GetPrimaryVertex(0)->GetPosition().y() / CLHEP::mm;
+        E0_MeV = anEvent->GetPrimaryVertex(0)->GetPrimary()->GetKineticEnergy() / CLHEP::MeV;
     }
     G4double x0_mm{-999.};
     G4double y0_mm{-999.};
+    G4double E0_MeV{-999.};
+
 private:
     G4ParticleGun* fParticleGun;
     int counter = {0};

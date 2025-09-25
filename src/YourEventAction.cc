@@ -17,6 +17,12 @@ void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
   fHistogramCollectionProfileXY_map.Initialize("XY_vs_z", nbins, zmin, zmax);
   // check if it is test beam, if so, change offset used in FillEnergyProfileZ method
   SetOffset();
+  event_energy_in_sensitiveVols_MeV = 0;
+  if( 0 == sensitive_mats.size() )
+  {
+    sensitive_mats.push_back( G4Material::GetMaterial("Silicon") );
+    sensitive_mats.push_back( G4Material::GetMaterial("H_Scintillator") );
+  }
 }
 
 
@@ -36,12 +42,24 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
 
     fRunAction->fProfileXYHistograms.UpdateAverageAndMean(*sigma_r_h.get(), mat);
   }
+
+
+  double f_sampling_fraction = event_energy_in_sensitiveVols_MeV / event_energy_in_allVols_MeV; //fPrimaryGenerator->E0_MeV;
+  fRunAction->hSamplingFraction->Fill( f_sampling_fraction );
+
+  double f_leakage = 1 - event_energy_in_allVols_MeV / fPrimaryGenerator->E0_MeV;
+  fRunAction->hEnergyLeakage->Fill(f_leakage);
+
 }
 
 
 void YourEventAction::FillEnergyProfileZ(G4double eDep_MeV, G4double zpos_mm, G4Material * mat)
 {
   fHistogramCollectionProfileZ_map.Fill(eDep_MeV,zpos_mm - zoffset_mm,mat);
+  event_energy_in_allVols_MeV+=eDep_MeV;
+  if(mat == sensitive_mats[0] || mat == sensitive_mats[1])
+    event_energy_in_sensitiveVols_MeV+=eDep_MeV;
+
 }
 
 void YourEventAction::FillEnergyProfileXY(G4double eDep_MeV, G4ThreeVector avestep_position, G4Material* mat)
