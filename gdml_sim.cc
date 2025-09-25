@@ -14,9 +14,22 @@
 #include <G4LogicalVolumeStore.hh>
 
 struct mat_cut_couple_t{
+    // Constructor with 1 cut delegates to ctor with cut per particle
+    mat_cut_couple_t(std::string imatname, std::string ilvname_pattern, double icut_mm)
+        : mat_cut_couple_t(std::move(imatname), std::move(ilvname_pattern),
+                           icut_mm, icut_mm, icut_mm) {}
+
+    // Constructor with cuts per particle
+    mat_cut_couple_t(std::string imatname, std::string ilvname_pattern,
+                     double icutg_mm, double icute_mm, double icutp_mm)
+        : matname(std::move(imatname)),
+          lvname_pattern(std::move(ilvname_pattern)),
+          cutg_mm(icutg_mm), cute_mm(icute_mm), cutp_mm(icutp_mm) {}
     std::string matname;
     std::string lvname_pattern;
-    double cut_mm;
+    double cutg_mm;
+    double cute_mm;
+    double cutp_mm;
 };
 using matcut_couples_t = std::vector<mat_cut_couple_t>;
 matcut_couples_t LoadMaterialCuts(const std::string & ifilename);
@@ -256,17 +269,25 @@ matcut_couples_t LoadMaterialCuts(const std::string& matcut_filename)
 
         auto tokens = tokenizeByTab(line);
 
-        if (tokens.size() != 3) {
+        if (tokens.size() != 3 && tokens.size() != 5) {
             std::cerr << "Warning: ignoring line, " << line << std::endl;
             continue;
         }
 
         try {
+
             std::string matname = tokens[0];
             std::string lvname_pattern = tokens[1];
-            double cut_mm = std::stod(tokens[2]); // string to double
-
-            material_cut_mm_map.push_back({matname, lvname_pattern, cut_mm});
+            if(tokens.size() == 3){
+                double cut_mm = std::stod(tokens[2]); // string to double
+                material_cut_mm_map.push_back({matname, lvname_pattern, cut_mm});
+            }
+            else if(tokens.size() == 5){
+                double cutg_mm = std::stod(tokens[2]); // string to double
+                double cute_mm = std::stod(tokens[3]); // string to double
+                double cutp_mm = std::stod(tokens[4]); // string to double
+                material_cut_mm_map.push_back({matname, lvname_pattern, cutg_mm,cute_mm,cutp_mm});
+            }
         } catch (const std::exception& e) {
             std::cerr << "Error parsing line: " << line << " (" << e.what() << ")" << std::endl;
         }
@@ -289,15 +310,14 @@ void define_material_region(mat_cut_couple_t & couple)
 {
     std::string imatname = couple.matname;
     std::string lvname_pattern_str = couple.lvname_pattern;
-    double icut = couple.cut_mm;
     auto HGCalEEmatRegion = new G4Region("Region" + lvname_pattern_str + imatname);
     // assign cuts
     auto HGCalEEmatcuts = new G4ProductionCuts();
     // Set cut values (in mm)
-    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
-    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
-    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
-    HGCalEEmatcuts->SetProductionCut(icut * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
+    HGCalEEmatcuts->SetProductionCut(couple.cutg_mm * CLHEP::mm, G4ProductionCuts::GetIndex("gamma"));
+    HGCalEEmatcuts->SetProductionCut(couple.cute_mm * CLHEP::mm, G4ProductionCuts::GetIndex("e-"));
+    HGCalEEmatcuts->SetProductionCut(couple.cute_mm * CLHEP::mm, G4ProductionCuts::GetIndex("e+"));
+    HGCalEEmatcuts->SetProductionCut(couple.cutp_mm * CLHEP::mm, G4ProductionCuts::GetIndex("proton"));
     HGCalEEmatRegion->SetProductionCuts(HGCalEEmatcuts);
     // ----------------------------------------------------------
     // if lvname_pattern_str is an exact name (no regex_metachars), ignore material and define region
@@ -330,9 +350,7 @@ void define_material_region(mat_cut_couple_t & couple)
     }
     return;
 }
-#include "G4LossTableManager.hh"
-#include "G4LossTableBuilder.hh"
-#include "G4Electron.hh"
+
 void define_hgcal_subregions_per_material(matcut_couples_t & matcut_couples)
 {
     for( auto & couple : matcut_couples)
