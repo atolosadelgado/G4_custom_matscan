@@ -3,11 +3,37 @@
 
 #include "G4Track.hh"
 
+#include "TH1D.h"
+#include "TFile.h"
+
 class SecondaryEscapeCounter {
 public:
-    SecondaryEscapeCounter(const G4String& particleName = "")
+    SecondaryEscapeCounter(const G4String & particleName = "")
         : fParticleNameFilter(particleName),
-          fTotalSecondaries(0), fEscapingSecondaries(0) {}
+          fTotalSecondaries(0), fEscapingSecondaries(0) {
+              std::string fHistTotalName;
+              std::string fHistEscapingName;
+              if(fParticleNameFilter.empty())
+              {
+                  fHistTotalName = "hTotalSecondaries";
+                  fHistEscapingName = "hTotalSecondariesEscaping";
+              }
+              else {
+                  std::string s = particleName;
+                  // remove non alpha characters
+                  s.erase(std::remove_if(s.begin(), s.end(),
+                           [](unsigned char c){ return !std::isalpha(c); }),
+                    s.end());
+                  fHistTotalName = "hTotal" + s;
+                  fHistEscapingName = "hTotal" + s;
+              }
+              fHistTotal = std::make_unique<TH1D>(fHistTotalName.c_str(),fHistTotalName.c_str(), 30000, 0, 3e6);
+              fHistEscaping = std::make_unique<TH1D>(fHistEscapingName.c_str(),fHistEscapingName.c_str(), 30000, 0, 3e6);
+
+              fHistTotal->SetDirectory(0);
+              fHistEscaping->SetDirectory(0);
+
+        }
 
     void RegisterCreation(const G4Track* track) {
         if (track->GetParentID() > 0) { // Secundario
@@ -37,11 +63,20 @@ public:
         }
     }
 
-    void Reset() {
+    void FillHistogramsAndResetCounters() {
+        fHistTotal->Fill(fTotalSecondaries);
+        fHistEscaping->Fill(fEscapingSecondaries);
         fTotalSecondaries = 0;
         fEscapingSecondaries = 0;
         fCreationVolume.clear();
     }
+
+    void WriteHistogram(TFile * f) {
+        f->cd();
+        fHistTotal->Write();
+        fHistEscaping->Write();
+    }
+
 
     // Getters
     G4int GetTotalSecondaries() const { return fTotalSecondaries; }
@@ -53,6 +88,9 @@ private:
     G4int fTotalSecondaries;
     G4int fEscapingSecondaries;
     std::map<G4int, G4String> fCreationVolume;
+
+    std::unique_ptr<TH1D> fHistTotal;
+    std::unique_ptr<TH1D> fHistEscaping;
 };
 
 #endif

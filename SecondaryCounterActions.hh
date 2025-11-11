@@ -36,9 +36,9 @@ public:
     }
 
     void Reset() {
-        counterAll.Reset();
-        counterElectrons.Reset();
-        counterGammas.Reset();
+        counterAll.FillHistogramsAndResetCounters();
+        counterElectrons.FillHistogramsAndResetCounters();
+        counterGammas.FillHistogramsAndResetCounters();
     }
 
     const SecondaryEscapeCounter& GetCounterAll() const { return counterAll; }
