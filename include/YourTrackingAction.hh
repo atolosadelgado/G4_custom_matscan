@@ -22,19 +22,8 @@ public:
         fRunAction->counterGammas.RegisterEnd(track);
     }
 
-    void Reset() {
-        fRunAction->counterAll.FillHistogramsAndResetCounters();
-        fRunAction->counterElectrons.FillHistogramsAndResetCounters();
-        fRunAction->counterGammas.FillHistogramsAndResetCounters();
-    }
-
-    // const SecondaryEscapeCounter& GetCounterAll() const { return counterAll; }
-    // const SecondaryEscapeCounter& GetCounterElectrons() const { return counterElectrons; }
-    // const SecondaryEscapeCounter& GetCounterGammas() const { return counterGammas; }
-
 private:
     YourRunAction * fRunAction;
-
 };
 
 #endif
