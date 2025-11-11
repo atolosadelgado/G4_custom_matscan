@@ -29,12 +29,12 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
     if(nullptr == your_evt_action) throw std::runtime_error("Custom event action not found, null pointer!");
 
 
-    auto nbins = your_evt_action->nbins;
-    auto zmin = your_evt_action->zmin;
-    auto zmax = your_evt_action->zmax;
+    auto nbins_zprofile = your_evt_action->nbins_zprofile;
+    auto zmin_zprofile = your_evt_action->zmin_zprofile;
+    auto zmax_zprofile = your_evt_action->zmax_zprofile;
 
-    this->fProfileZHistograms.Initialize("E_vs_z_averaged", "Deposited energy as function of Z; Z (mm); E (MeV)", nbins, zmin, zmax);
-    this->fProfileXYHistograms.Initialize("R_vs_z_averaged", "Radius (XY, energy weighted) as function of Z; Z (mm); R (mm)", nbins, zmin, zmax);
+    this->fProfileZHistograms.Initialize("E_vs_z_averaged", "Deposited energy as function of Z; Z (mm); E (MeV)", nbins_zprofile, zmin_zprofile, zmax_zprofile);
+    this->fProfileXYHistograms.Initialize("R_vs_z_averaged", "Radius (XY, energy weighted) as function of Z; Z (mm); R (mm)", nbins_zprofile, zmin_zprofile, zmax_zprofile);
     hSamplingFraction = std::make_unique<TH1D>("hSamplingFraction","Visible energy, normalized by deposited energy;;E_{vis}/E_{dep}",50000,0.,0.01);
     // to avoid double deletion, set null directory
     hSamplingFraction->SetDirectory(nullptr);

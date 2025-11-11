@@ -27,9 +27,9 @@ public:
   void FillEnergyProfileXY(G4double eDep_MeV, G4ThreeVector avestep_position, G4Material * mat);
 
   // define histogram bining and range
-  G4int nbins = 180000;
-  G4double zmin = 0000*CLHEP::mm;
-  G4double zmax = 3000*CLHEP::mm;
+  G4int nbins_zprofile = 180000;
+  G4double zmin_zprofile = 0000*CLHEP::mm;
+  G4double zmax_zprofile = 3000*CLHEP::mm;
   // this is done
   G4double zoffset_mm = 0;
 

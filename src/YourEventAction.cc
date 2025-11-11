@@ -17,8 +17,8 @@ YourEventAction::~YourEventAction() {}
 void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
 
   // Initialize pointers only first time, afterwards it will simply reset the histograms
-  fHistogramCollectionProfileZ_map.Initialize("E_vs_z", nbins, zmin, zmax);
-  fHistogramCollectionProfileXY_map.Initialize("XY_vs_z", nbins, zmin, zmax);
+  fHistogramCollectionProfileZ_map.Initialize("E_vs_z", nbins_zprofile, zmin_zprofile, zmax_zprofile);
+  fHistogramCollectionProfileXY_map.Initialize("XY_vs_z", nbins_zprofile, zmin_zprofile, zmax_zprofile);
   // check if it is test beam, if so, change offset used in FillEnergyProfileZ method
   SetOffset();
   event_energy_in_sensitiveVols_MeV = 0;
