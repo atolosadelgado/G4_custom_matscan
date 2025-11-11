@@ -50,6 +50,10 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
   double f_leakage = 1 - event_energy_in_allVols_MeV / fPrimaryGenerator->E0_MeV;
   fRunAction->hEnergyLeakage->Fill(f_leakage);
 
+  fRunAction->counterAll.FillHistogramsAndResetCounters();
+  fRunAction->counterElectrons.FillHistogramsAndResetCounters();
+  fRunAction->counterGammas.FillHistogramsAndResetCounters();
+
 }
 
 
