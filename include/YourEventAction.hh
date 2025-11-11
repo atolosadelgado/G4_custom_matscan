@@ -10,11 +10,11 @@ class G4Material;
 #include "HistogramCollection.hh"
 #include "G4ThreeVector.hh"
 #include "MyPrimaryGenerator.hh"
-
+class YourTrackingAction;
 class YourEventAction : public G4UserEventAction {
 public:
 
-  YourEventAction(YourRunAction * myRunAction, MyPrimaryGenerator* gen);
+  YourEventAction(YourRunAction * myRunAction, MyPrimaryGenerator* gen, YourTrackingAction * trkAction);
   ~YourEventAction() override;
 
   void BeginOfEventAction(const G4Event* evt) override;
@@ -46,6 +46,8 @@ public:
 private:
   YourRunAction * fRunAction;
   MyPrimaryGenerator * fPrimaryGenerator;
+  YourTrackingAction * fTrackAction;
+
   double event_energy_in_sensitiveVols_MeV = 0;
   double event_energy_in_allVols_MeV = 0;
 

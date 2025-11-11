@@ -4,7 +4,9 @@
 #include "G4UserRunAction.hh"
 
 #include "AveragedHistogramCollection.hh"
-class TH1D;
+
+#include "SecondaryEscapeCounter.hh"
+
 #include <memory>
 
 class G4Material;
@@ -30,6 +32,10 @@ class YourRunAction : public G4UserRunAction {
 
   std::vector<G4Material*> sensitive_mats;
   std::vector<G4Material*> nonDetector_mats;
+
+  SecondaryEscapeCounter counterAll;
+  SecondaryEscapeCounter counterElectrons;
+  SecondaryEscapeCounter counterGammas;
 
 };
 

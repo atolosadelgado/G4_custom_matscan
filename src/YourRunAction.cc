@@ -8,7 +8,13 @@
 
 #include "G4Material.hh"
 
-YourRunAction::YourRunAction(std::string ofilename):G4UserRunAction(),_ofilename(ofilename){}
+YourRunAction::YourRunAction(std::string ofilename):
+          G4UserRunAction(),
+          _ofilename(ofilename),
+          counterAll(""),          // all
+          counterElectrons("e-"),  // only e-
+          counterGammas("gamma")   // only gamma
+          {}
 
 
 YourRunAction::~YourRunAction() {}
@@ -62,6 +68,11 @@ void YourRunAction::EndOfRunAction(const G4Run* ){
     raw_ptr = hEnergyLeakage.release();
     raw_ptr->SetDirectory(ofile);
     raw_ptr->Write();
+
+    this->counterAll.WriteHistogram(ofile);
+    this->counterElectrons.WriteHistogram(ofile);
+    this->counterGammas.WriteHistogram(ofile);
+
     ofile->Close();
 }
 

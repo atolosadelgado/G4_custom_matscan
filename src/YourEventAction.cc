@@ -5,9 +5,11 @@
 
 #include "G4Material.hh"
 
-YourEventAction::YourEventAction(YourRunAction * myRunAction, MyPrimaryGenerator * gen)
+#include "YourTrackingAction.hh"
+
+YourEventAction::YourEventAction(YourRunAction * myRunAction, MyPrimaryGenerator * gen, YourTrackingAction * trkAction)
   : G4UserEventAction(),
-  fRunAction(myRunAction), fPrimaryGenerator(gen) {}
+  fRunAction(myRunAction), fPrimaryGenerator(gen), fTrackAction(trkAction) {}
 
 
 YourEventAction::~YourEventAction() {}

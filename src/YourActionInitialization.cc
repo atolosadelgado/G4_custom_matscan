@@ -43,14 +43,23 @@ void YourActionInitialization::Build() const {
   // Set UserPrimaryGeneratorAction
   MyPrimaryGenerator * gen = new MyPrimaryGenerator();
   SetUserAction(gen);
+
   // Set UserRunAction
+  // run action owns histograms to be written at the end
   YourRunAction* runAction = new YourRunAction(_ofilename);
   SetUserAction(runAction);
-  YourTrackingAction * trackAction = new YourTrackingAction();
+
+  // tracking action calls counters of secondaries, owned by run action
+  YourTrackingAction * trackAction = new YourTrackingAction(runAction);
   SetUserAction(trackAction);
+
   // Set UserEventAction
-  YourEventAction* eventAction = new YourEventAction(runAction,gen);
+  // event action accumulates energy deposited and radius per Z-bin, per event
+  // end of event, update main histograms owned by run action and reset event histograms
+  YourEventAction* eventAction = new YourEventAction(runAction,gen,trackAction);
   SetUserAction(eventAction);
+
   // Set UserSteppingAction
+  // steping action updates histograms owned by event action, for energy deposited and shower width
   SetUserAction( new YourSteppingAction(eventAction) );
 }
