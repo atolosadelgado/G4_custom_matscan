@@ -100,3 +100,14 @@ add_custom_target(G01 DEPENDS load_gdml)
 #
 install(TARGETS gdml_sim DESTINATION bin)
 
+enable_testing()
+
+add_test(
+    NAME RunGdmlSim
+    COMMAND ${CMAKE_BINARY_DIR}/gdml_sim
+            ${CMAKE_SOURCE_DIR}/RunD121_HGCal.gdml
+            original_cuts
+            profile
+            FTFP_BERT
+            ${CMAKE_SOURCE_DIR}/gun.mac
+)
