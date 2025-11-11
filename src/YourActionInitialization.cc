@@ -8,7 +8,7 @@
 #include "YourRunAction.hh"
 #include "YourEventAction.hh"
 #include "YourSteppingAction.hh"
-
+#include "YourTrackingAction.hh"
 
 
 YourActionInitialization::YourActionInitialization(std::string ofilename)
@@ -46,6 +46,8 @@ void YourActionInitialization::Build() const {
   // Set UserRunAction
   YourRunAction* runAction = new YourRunAction(_ofilename);
   SetUserAction(runAction);
+  YourTrackingAction * trackAction = new YourTrackingAction();
+  SetUserAction(trackAction);
   // Set UserEventAction
   YourEventAction* eventAction = new YourEventAction(runAction,gen);
   SetUserAction(eventAction);
