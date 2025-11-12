@@ -13,7 +13,7 @@ struct MyWatch
     MyWatch(std::string function_name)
         : _msg(std::move(function_name)), _start(std::chrono::high_resolution_clock::now())
     {
-        std::cout << "Initializing " << _msg << "..." << std::endl;
+        std::cout << _msg << "..." << std::endl;
     }
 
     ~MyWatch()
