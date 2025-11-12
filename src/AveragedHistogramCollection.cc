@@ -10,7 +10,7 @@ void AveragedHistogramCollection::Initialize(std::string histo_basename, std::st
 {
 
   // report time of initialization
-  MyWatch myInit("Initializing Averaged histogram collection");
+  MyWatch myInit("Initializing Averaged histogram collection <<" + histo_basename + ">>");
 
   G4MaterialTable* material_table_vector = G4Material::GetMaterialTable();
   if(nullptr == material_table_vector) throw std::runtime_error("Material table not found, null pointer!");
