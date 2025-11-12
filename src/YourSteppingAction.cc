@@ -24,7 +24,10 @@ void YourSteppingAction::UserSteppingAction(const G4Step* theStep) {
   // for consistency, take z from prestep
   avestep_position = G4ThreeVector(avestep_position.x(), avestep_position.y(), prestep_position.z());
   G4Material * mat = theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetMaterial();
+  G4double time_ps = theStep->GetPostStepPoint()->GetGlobalTime() / CLHEP::ps;
+
   fYourEventAction->FillEnergyProfileZ(eDep_MeV, zpos_mm, mat);
   fYourEventAction->FillEnergyProfileXY(eDep_MeV, avestep_position, mat);
+  fYourEventAction->FillEnergyTimeProfile(time_ps, eDep_MeV, mat);
 
 }

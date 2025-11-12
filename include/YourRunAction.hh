@@ -24,6 +24,7 @@ class YourRunAction : public G4UserRunAction {
   // is averaged over the run (average of event histograms)
   AveragedHistogramCollection fProfileZHistograms;
   AveragedHistogramCollection fProfileXYHistograms;
+  AveragedHistogramCollection fProfileTimeEnergyHistograms;
 
   std::unique_ptr<TH1D> hSamplingFraction;
   std::unique_ptr<TH1D> hEnergyLeakage;

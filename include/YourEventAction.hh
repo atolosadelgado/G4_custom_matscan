@@ -26,6 +26,10 @@ public:
   // Fill profile histogram
   void FillEnergyProfileXY(G4double eDep_MeV, G4ThreeVector avestep_position, G4Material * mat);
 
+  // Fill time-energy histogram
+  void FillEnergyTimeProfile(G4double time_ps, G4double eDep_MeV, G4Material* mat);
+
+
   // define histogram bining and range
   G4int nbins_zprofile = 180000;
   G4double zmin_zprofile = 0000*CLHEP::mm;
@@ -43,7 +47,7 @@ public:
   }
   std::unique_ptr<TH1D> MakeRMS_from_M2_Mean(const std::unique_ptr<TH1D> & M2, const std::unique_ptr<TH1D> & Mean);
 
-private:
+// private:
   YourRunAction * fRunAction;
   MyPrimaryGenerator * fPrimaryGenerator;
   YourTrackingAction * fTrackAction;
@@ -55,7 +59,7 @@ private:
   // event, and reset before starting next one
   HistogramCollection fHistogramCollectionProfileZ_map;
   HistogramCollection fHistogramCollectionProfileXY_map;
-
+  HistogramCollection fHistogramCollectionTimeVsEdep_map;
 
 };
 

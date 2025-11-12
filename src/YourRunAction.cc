@@ -35,6 +35,13 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
 
     this->fProfileZHistograms.Initialize("E_vs_z_averaged", "Deposited energy as function of Z; Z (mm); E (MeV)", nbins_zprofile, zmin_zprofile, zmax_zprofile);
     this->fProfileXYHistograms.Initialize("R_vs_z_averaged", "Radius (XY, energy weighted) as function of Z; Z (mm); R (mm)", nbins_zprofile, zmin_zprofile, zmax_zprofile);
+
+    auto nbins_timeEnergy_prof = your_evt_action->fHistogramCollectionTimeVsEdep_map.nbins;
+    auto tmin_timeEnergy_prof = your_evt_action->fHistogramCollectionTimeVsEdep_map.zmin;
+    auto tmax_timeEnergy_prof = your_evt_action->fHistogramCollectionTimeVsEdep_map.zmax;
+    this->fProfileTimeEnergyHistograms.Initialize("E_vs_t_averaged","Deposited energy as function of time; Time (ps); E(MeV)",
+                                                  nbins_timeEnergy_prof, tmin_timeEnergy_prof, tmax_timeEnergy_prof);
+
     hSamplingFraction = std::make_unique<TH1D>("hSamplingFraction","Visible energy, normalized by deposited energy;;E_{vis}/E_{dep}",50000,0.,0.01);
     // to avoid double deletion, set null directory
     hSamplingFraction->SetDirectory(nullptr);
@@ -57,10 +64,8 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
 }
 
 void YourRunAction::EndOfRunAction(const G4Run* ){
-    this->fProfileZHistograms.SaveRootfile(_ofilename);
-    this->fProfileXYHistograms.SaveRootfile(_ofilename);
 
-    TFile * ofile = TFile::Open(_ofilename.c_str(), "update");
+    TFile * ofile = TFile::Open(_ofilename.c_str(), "recreate");
     // take ownership from hEvis and pass it to the TFile
     TH1D* raw_ptr = hSamplingFraction.release();
     raw_ptr->SetDirectory(ofile);
@@ -74,6 +79,11 @@ void YourRunAction::EndOfRunAction(const G4Run* ){
     this->counterGammas.WriteHistogram(ofile);
 
     ofile->Close();
+
+
+    this->fProfileZHistograms.SaveRootfile(_ofilename);
+    this->fProfileXYHistograms.SaveRootfile(_ofilename);
+    this->fProfileTimeEnergyHistograms.SaveRootfile(_ofilename);
 }
 
 

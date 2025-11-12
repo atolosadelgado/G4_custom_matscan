@@ -9,7 +9,14 @@
 
 YourEventAction::YourEventAction(YourRunAction * myRunAction, MyPrimaryGenerator * gen, YourTrackingAction * trkAction)
   : G4UserEventAction(),
-  fRunAction(myRunAction), fPrimaryGenerator(gen), fTrackAction(trkAction) {}
+  fRunAction(myRunAction), fPrimaryGenerator(gen), fTrackAction(trkAction) {
+  // Initialize pointers only first time, afterwards it will simply reset the histograms
+  fHistogramCollectionProfileZ_map.Initialize("E_vs_z", nbins_zprofile, zmin_zprofile, zmax_zprofile);
+  fHistogramCollectionProfileXY_map.Initialize("XY_vs_z", nbins_zprofile, zmin_zprofile, zmax_zprofile);
+  /// energy tail extends beyond 500ns, we cut in 50ns
+  /// bin of 10ps
+  fHistogramCollectionTimeVsEdep_map.Initialize("hE_MeV_vs_Time_ps",50e2,0,50e3);
+  }
 
 
 YourEventAction::~YourEventAction() {}
@@ -17,11 +24,14 @@ YourEventAction::~YourEventAction() {}
 void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
 
   // Initialize pointers only first time, afterwards it will simply reset the histograms
-  fHistogramCollectionProfileZ_map.Initialize("E_vs_z", nbins_zprofile, zmin_zprofile, zmax_zprofile);
-  fHistogramCollectionProfileXY_map.Initialize("XY_vs_z", nbins_zprofile, zmin_zprofile, zmax_zprofile);
+  fHistogramCollectionProfileZ_map.Reset();
+  fHistogramCollectionProfileXY_map.Reset();
+  fHistogramCollectionTimeVsEdep_map.Reset();
+
   // check if it is test beam, if so, change offset used in FillEnergyProfileZ method
   SetOffset();
   event_energy_in_sensitiveVols_MeV = 0;
+
 
 }
 
@@ -33,7 +43,6 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
     G4Material * mat = it.first;
     fRunAction->fProfileZHistograms.UpdateAverageAndMean(profile_histogram, mat);
   }
-
   for( const auto & [mat, profileEnergyR2_h] : fHistogramCollectionProfileXY_map.histogramCollection_map){
 
     auto & profileZ_h = fHistogramCollectionProfileZ_map.histogramCollection_map.at( mat );
@@ -42,6 +51,13 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
 
     fRunAction->fProfileXYHistograms.UpdateAverageAndMean(*sigma_r_h.get(), mat);
   }
+
+  for( auto & it : fHistogramCollectionTimeVsEdep_map.histogramCollection_map){
+    TH1D & profile_histogram = *(it.second);
+    G4Material * mat = it.first;
+    fRunAction->fProfileTimeEnergyHistograms.UpdateAverageAndMean(profile_histogram, mat);
+  }
+
 
 
   double f_sampling_fraction = event_energy_in_sensitiveVols_MeV / event_energy_in_allVols_MeV; //fPrimaryGenerator->E0_MeV;
@@ -112,5 +128,10 @@ std::unique_ptr<TH1D> YourEventAction::MakeRMS_from_M2_Mean(const std::unique_pt
     // sigma_r_h->SetXTitle("Z (mm)");
     // sigma_r_h->SetYTitle("RMS (mm)");
     return sigma_r_h;
+}
+
+void YourEventAction::FillEnergyTimeProfile(G4double time_ps, G4double eDep_MeV, G4Material* mat)
+{
+  fHistogramCollectionTimeVsEdep_map.Fill(eDep_MeV,time_ps,mat);
 }
 
