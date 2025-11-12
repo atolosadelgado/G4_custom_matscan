@@ -28,6 +28,7 @@ class YourRunAction : public G4UserRunAction {
 
   std::unique_ptr<TH1D> hSamplingFraction;
   std::unique_ptr<TH1D> hEnergyLeakage;
+  std::unique_ptr<TH1D> hTimePerEvent_ms;
   std::string _ofilename;
 
 

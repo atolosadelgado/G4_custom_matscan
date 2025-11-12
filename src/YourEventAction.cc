@@ -31,12 +31,15 @@ void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
   // check if it is test beam, if so, change offset used in FillEnergyProfileZ method
   SetOffset();
   event_energy_in_sensitiveVols_MeV = 0;
-
-
+  this->_start = std::chrono::high_resolution_clock::now();
 }
 
 
 void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - _start).count();
+  fRunAction->hTimePerEvent_ms->Fill(duration_ms);
+
 
   for( auto & it : fHistogramCollectionProfileZ_map.histogramCollection_map){
     TH1D & profile_histogram = *(it.second);

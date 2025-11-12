@@ -10,6 +10,8 @@ class G4Material;
 #include "HistogramCollection.hh"
 #include "G4ThreeVector.hh"
 #include "MyPrimaryGenerator.hh"
+#include <chrono>
+
 class YourTrackingAction;
 class YourEventAction : public G4UserEventAction {
 public:
@@ -51,6 +53,9 @@ public:
   YourRunAction * fRunAction;
   MyPrimaryGenerator * fPrimaryGenerator;
   YourTrackingAction * fTrackAction;
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> _start;
+
 
   double event_energy_in_sensitiveVols_MeV = 0;
   double event_energy_in_allVols_MeV = 0;
