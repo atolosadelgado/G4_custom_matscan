@@ -49,7 +49,7 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
     hEnergyLeakage = std::make_unique<TH1D>("hEnergyLeakage","Fraction of leaked energy;;1-E_{vis}/E_{0}",50000,0.,0.1);
     hEnergyLeakage->SetDirectory(nullptr);
 
-    hTimePerEvent_ms = std::make_unique<TH1D>("hTimePerEvent","Time per event;Time (ms);",2*60*1000,0.,2*60*1000);
+    hTimePerEvent_ms = std::make_unique<TH1D>("hTimePerEvent","Time per event;Time (ms);",2e5, 0.,1e4);
 
     if( 0 == sensitive_mats.size() )
     {
