@@ -103,6 +103,16 @@ install(TARGETS gdml_sim DESTINATION bin)
 enable_testing()
 
 add_test(
+    NAME RunGdmlSimMatScan
+    COMMAND ${CMAKE_BINARY_DIR}/gdml_sim
+            ${CMAKE_SOURCE_DIR}/RunD121_HGCal.gdml
+            original_cuts
+            matscan
+            FTFP_BERT
+            ${CMAKE_SOURCE_DIR}/gun_matscan.mac
+)
+
+add_test(
     NAME RunGdmlSim
     COMMAND ${CMAKE_BINARY_DIR}/gdml_sim
             ${CMAKE_SOURCE_DIR}/RunD121_HGCal.gdml
