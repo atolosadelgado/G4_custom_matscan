@@ -54,6 +54,8 @@ public:
   MyPrimaryGenerator * fPrimaryGenerator;
   YourTrackingAction * fTrackAction;
 
+  int flush_everyNevt = {5};
+
   std::chrono::time_point<std::chrono::high_resolution_clock> _start;
 
 

@@ -35,7 +35,7 @@ void YourEventAction::BeginOfEventAction(const G4Event* /*anEvent*/) {
 }
 
 
-void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
+void YourEventAction::EndOfEventAction(const G4Event* evt) {
   auto end = std::chrono::high_resolution_clock::now();
   auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - _start).count();
   fRunAction->hTimePerEvent_ms->Fill(duration_ms);
@@ -72,6 +72,15 @@ void YourEventAction::EndOfEventAction(const G4Event* /*anEvent*/) {
   fRunAction->counterAll.FillHistogramsAndResetCounters();
   fRunAction->counterElectrons.FillHistogramsAndResetCounters();
   fRunAction->counterGammas.FillHistogramsAndResetCounters();
+
+
+  // Get current event ID
+  G4int eventID  = evt->GetEventID();
+  if( 0 == (eventID%flush_everyNevt) )
+  {
+    fRunAction->WriteOutputFile();
+    std::cout << "\tevent #" << eventID << std::endl;
+  }
 
 }
 
