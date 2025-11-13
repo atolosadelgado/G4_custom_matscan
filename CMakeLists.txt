@@ -111,3 +111,16 @@ add_test(
             FTFP_BERT
             ${CMAKE_SOURCE_DIR}/gun.mac
 )
+
+add_test(
+    NAME RunGdmlSimNewCuts
+    COMMAND ${CMAKE_BINARY_DIR}/gdml_sim
+            ${CMAKE_SOURCE_DIR}/RunD121_HGCal.gdml
+            new_cuts
+            profile
+            FTFP_BERT
+            ${CMAKE_SOURCE_DIR}/gun.mac
+)
+set_tests_properties(RunGdmlSimNewCuts PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
