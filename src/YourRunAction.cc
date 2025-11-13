@@ -67,6 +67,8 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
 
 void YourRunAction::EndOfRunAction(const G4Run* ){
     this->WriteOutputFile();
+    std::cout << "\tEnd of run" << std::endl;
+
 }
 
 void YourRunAction::WriteOutputFile()
@@ -87,12 +89,13 @@ void YourRunAction::WriteOutputFile()
     this->counterElectrons.WriteHistogram(ofile);
     this->counterGammas.WriteHistogram(ofile);
 
+
+    this->fProfileZHistograms.WriteHistogram(ofile);
+    this->fProfileXYHistograms.WriteHistogram(ofile);
+    this->fProfileTimeEnergyHistograms.WriteHistogram(ofile);
+
     ofile->Close();
 
-
-    this->fProfileZHistograms.SaveRootfile(_ofilename);
-    this->fProfileXYHistograms.SaveRootfile(_ofilename);
-    this->fProfileTimeEnergyHistograms.SaveRootfile(_ofilename);
 }
 
 

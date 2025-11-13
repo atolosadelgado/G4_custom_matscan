@@ -23,7 +23,7 @@ public:
     void UpdateAverageAndMean(const TH1D& h, G4Material * mat);
 
     // save histograms to a rootfile
-    void SaveRootfile(std::string ofilename);
+    void WriteHistogram(TFile * f);
 
     // keep histograms, but reset the content
     void ResetHistograms();

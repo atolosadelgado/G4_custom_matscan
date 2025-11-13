@@ -52,16 +52,14 @@ void AveragedHistogramCollection::UpdateAverageAndMean(const TH1D& h, G4Material
     }
 }
 
-void AveragedHistogramCollection::SaveRootfile(std::string ofilename)
+void AveragedHistogramCollection::WriteHistogram(TFile * ofile)
 {
-    if( 0 == ofilename.size()) return;
+    if( nullptr == ofile ) return;
 
-    TFile * ofile = TFile::Open(ofilename.c_str(), "update");
-
+    ofile->cd();
     for( auto & eProfileForMaterial : this->averagedProfilePerMaterial_map)
         eProfileForMaterial.second.finalize(ofile);
 
-    ofile->Close();
 }
 
 void AveragedHistogramCollection::ResetHistograms()

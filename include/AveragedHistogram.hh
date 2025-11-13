@@ -75,14 +75,14 @@ public:
     }
 
     void finalize(TFile* file) {
-        TH1D* raw_ptr = hist.release();
+        TH1D* raw_ptr = hist.get();
+        raw_ptr->SetDirectory(0);
 
         for (int i = 1; i <= nbins; ++i) {
             raw_ptr->SetBinContent(i, accumulators[i].getMean());
             raw_ptr->SetBinError(i, accumulators[i].getSEM());
         }
 
-        raw_ptr->SetDirectory(file);
         raw_ptr->Write();
     }
 
