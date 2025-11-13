@@ -66,17 +66,21 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
 }
 
 void YourRunAction::EndOfRunAction(const G4Run* ){
+    this->WriteOutputFile();
+}
 
+void YourRunAction::WriteOutputFile()
+{
     TFile * ofile = TFile::Open(_ofilename.c_str(), "recreate");
     // take ownership from hEvis and pass it to the TFile
-    TH1D* raw_ptr = hSamplingFraction.release();
-    raw_ptr->SetDirectory(ofile);
+    TH1D* raw_ptr = hSamplingFraction.get();
+    raw_ptr->SetDirectory(0);
     raw_ptr->Write();
-    raw_ptr = hEnergyLeakage.release();
-    raw_ptr->SetDirectory(ofile);
+    raw_ptr = hEnergyLeakage.get();
+    raw_ptr->SetDirectory(0);
     raw_ptr->Write();
-    raw_ptr = hTimePerEvent_ms.release();
-    raw_ptr->SetDirectory(ofile);
+    raw_ptr = hTimePerEvent_ms.get();
+    raw_ptr->SetDirectory(0);
     raw_ptr->Write();
 
     this->counterAll.WriteHistogram(ofile);
