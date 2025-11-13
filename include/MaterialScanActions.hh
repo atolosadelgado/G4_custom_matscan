@@ -36,8 +36,10 @@ public:
 void RunActionMatScan::FlushToFileAndReset()
 {
     std::ofstream ofile(fOfilename, std::ios::app);
+    ofile << "steplength/mm\tLVname\tMatname" << std::endl;
+
     for( auto & s : stepinfo_v)
-        ofile << s.steplength << "\t" << s.volname << "\t" << s.matname << std::endl;
+        ofile << s.steplength/CLHEP::mm << "\t" << s.volname << "\t" << s.matname << std::endl;
     stepinfo_v.clear();
 }
 
