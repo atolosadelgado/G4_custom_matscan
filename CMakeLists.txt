@@ -113,7 +113,7 @@ add_test(
 )
 
 add_test(
-    NAME RunGdmlSim
+    NAME RunGdmlSimOriginalCuts
     COMMAND ${CMAKE_BINARY_DIR}/gdml_sim
             ${CMAKE_SOURCE_DIR}/RunD121_HGCal.gdml
             original_cuts
