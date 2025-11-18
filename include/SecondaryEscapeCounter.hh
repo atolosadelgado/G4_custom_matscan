@@ -25,7 +25,7 @@ public:
                            [](unsigned char c){ return !std::isalpha(c); }),
                     s.end());
                   fHistTotalName = "hTotal" + s;
-                  fHistEscapingName = "hTotal" + s;
+                  fHistEscapingName = "hTotalEscaping" + s;
               }
               fHistTotal = std::make_unique<TH1D>(fHistTotalName.c_str(),fHistTotalName.c_str(), 30000, 0, 3e6);
               fHistEscaping = std::make_unique<TH1D>(fHistEscapingName.c_str(),fHistEscapingName.c_str(), 30000, 0, 3e6);
