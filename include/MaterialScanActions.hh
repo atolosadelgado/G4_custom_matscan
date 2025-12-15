@@ -16,6 +16,7 @@ struct matscan_step_info_t{
     G4double steplength;
     G4String volname;
     G4String matname;
+    G4double position_z;
 };
 
 class RunActionMatScan : public G4UserRunAction {
@@ -36,10 +37,17 @@ public:
 void RunActionMatScan::FlushToFileAndReset()
 {
     std::ofstream ofile(fOfilename, std::ios::app);
-    ofile << "steplength/mm\tLVname\tMatname" << std::endl;
+    ofile << "steplength/mm\tLVname\tMatname\tPosition.Z/mm" << std::endl;
 
     for( auto & s : stepinfo_v)
-        ofile << s.steplength/CLHEP::mm << "\t" << s.volname << "\t" << s.matname << std::endl;
+    {
+        ofile << s.steplength/CLHEP::mm
+              << "\t" << s.volname
+              << "\t" << s.matname
+              << "\t" << s.position_z
+              << std::endl;
+    }
+
     stepinfo_v.clear();
 }
 
@@ -80,7 +88,10 @@ void StepActionMatScan::UserSteppingAction(const G4Step* step)
     auto steplength = step->GetStepLength();
     auto volname = step->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
     auto matname = step->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetMaterial()->GetName();
-    fRunAction->AddStep( {steplength, volname, matname} );
+    auto position_z_pre  = step->GetPreStepPoint()->GetPosition().z();
+    auto position_z_post = step->GetPostStepPoint()->GetPosition().z();
+    auto position_z = 0.5*( position_z_pre + position_z_post );
+    fRunAction->AddStep( {steplength, volname, matname, position_z} );
 }
 
 

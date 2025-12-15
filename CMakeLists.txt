@@ -35,6 +35,7 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/G01PrimaryGeneratorAction.cc
                   ${PROJECT_SOURCE_DIR}/src/G01DetectorConstruction.cc
                   ${PROJECT_SOURCE_DIR}/src/AveragedHistogramCollection.cc
                   ${PROJECT_SOURCE_DIR}/src/HistogramCollection.cc
+                  ${PROJECT_SOURCE_DIR}/src/NistRangeTable.cc
 
                   )
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/G01PrimaryGeneratorAction.hh
@@ -46,6 +47,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/G01PrimaryGeneratorAction.hh
                     ${PROJECT_SOURCE_DIR}/include/AveragedHistogramCollection.hh
                     ${PROJECT_SOURCE_DIR}/include/HistogramCollection.hh
                     ${PROJECT_SOURCE_DIR}/include/YourDetectorConstructor.hh
+                    ${PROJECT_SOURCE_DIR}/include/NistRangeTable.hh
                     )
 
 #----------------------------------------------------------------------------
@@ -120,6 +122,9 @@ add_test(
             profile
             FTFP_BERT
             ${CMAKE_SOURCE_DIR}/gun.mac
+)
+set_tests_properties(RunGdmlSimOriginalCuts PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_test(

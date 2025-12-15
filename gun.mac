@@ -11,8 +11,8 @@
 
 # for benchmarking
 /tracking/verbose 0
-/gun/particle pi-
-/gun/energy 100 GeV
+/gun/particle e-
+/gun/energy 10 GeV
 /gun/direction 0 0 1
 
 # For Test beam
@@ -27,4 +27,4 @@
 
 /random/setSeeds 12345 67890
 
-/run/beamOn 10
+/run/beamOn 1000

@@ -22,6 +22,8 @@ class YourRunAction : public G4UserRunAction {
 
     void WriteOutputFile();
 
+    void CheckCutCouple();
+
   // collection of material-histogram, where the histogram
   // is averaged over the run (average of event histograms)
   AveragedHistogramCollection fProfileZHistograms;

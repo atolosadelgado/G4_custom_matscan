@@ -62,7 +62,7 @@ void YourRunAction::BeginOfRunAction(const G4Run* ) {
         nonDetector_mats.push_back( G4Material::GetMaterial("Air") );
         nonDetector_mats.push_back( G4Material::GetMaterial("Galactic") );
     }
-
+    this->CheckCutCouple();
 }
 
 void YourRunAction::EndOfRunAction(const G4Run* ){
@@ -97,5 +97,63 @@ void YourRunAction::WriteOutputFile()
     ofile->Close();
 
 }
+#include "G4ProductionCutsTable.hh"
+#include "G4Gamma.hh"
+#include "G4Electron.hh"
+#include "G4Positron.hh"
+#include "G4Proton.hh"
 
+void YourRunAction::CheckCutCouple(){
+    G4cout << "=== Checking production cuts (energy) at BeginOfRun ===" << G4endl;
 
+    const G4double minEnergyCut = 50.0 * CLHEP::eV;
+
+    auto pctable = G4ProductionCutsTable::GetProductionCutsTable();
+    size_t nCouples = pctable->GetTableSize();
+
+    // Particle definitions (Geant4 fixed order)
+    const G4ParticleDefinition* particles[4] = {
+        G4Gamma::Gamma(),
+        G4Electron::Electron(),
+        G4Positron::Positron(),
+        G4Proton::Proton()
+    };
+
+    const char* names[4] = { "gamma", "e-", "e+", "proton" };
+
+    for (size_t i = 0; i < nCouples; ++i) {
+
+        const G4MaterialCutsCouple* couple = pctable->GetMaterialCutsCouple(i);
+        const G4Material* material = couple->GetMaterial();
+        const G4ProductionCuts* cuts = couple->GetProductionCuts();
+
+        G4cout << "\nCouple #" << i
+               << "  Material: " << material->GetName()
+               << G4endl;
+
+        for (int ic = 0; ic < 4; ++ic) {
+
+            G4double cutRange = cuts->GetProductionCut(ic); // mm (length)
+            G4double cutEnergy =
+                pctable->ConvertRangeToEnergy(
+                    particles[ic],
+                    material,
+                    cutRange
+                );
+
+            G4cout << "  Cut for " << names[ic]
+                   << ": range = " << cutRange/CLHEP::mm << " mm"
+                   << ",  energy = " << cutEnergy/CLHEP::eV << " eV"
+                   << G4endl;
+
+            if (cutEnergy < minEnergyCut) {
+                G4cerr << "  ** WARNING ** energy cut for " << names[ic]
+                       << " is too low: " << cutEnergy/CLHEP::eV << " eV"
+                       << " (minimum = " << minEnergyCut/CLHEP::eV << " eV)"
+                       << G4endl;
+            }
+        }
+    }
+
+    G4cout << "\n=== Finished checking production cuts ===" << G4endl;
+}

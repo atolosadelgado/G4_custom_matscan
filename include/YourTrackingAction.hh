@@ -3,6 +3,7 @@
 
 #include "SecondaryEscapeCounter.hh"
 #include "G4UserTrackingAction.hh"
+#include "G4Electron.hh"
 #include "YourRunAction.hh"
 
 class YourTrackingAction : public G4UserTrackingAction {
@@ -14,6 +15,13 @@ public:
         fRunAction->counterAll.RegisterCreation(track);
         fRunAction->counterElectrons.RegisterCreation(track);
         fRunAction->counterGammas.RegisterCreation(track);
+        // if (track->GetDefinition() == G4Electron::Electron() )
+            // G4cout << "E electron ID (track)"
+            //         << track->GetKineticEnergy()
+            //         << " " << track->GetPosition().z()
+            //         << " " << track->GetTrackStatus()
+            //         << G4endl;
+
     }
 
     void PostUserTrackingAction(const G4Track* track) override {

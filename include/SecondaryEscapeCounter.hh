@@ -13,10 +13,13 @@ public:
           fTotalSecondaries(0), fEscapingSecondaries(0) {
               std::string fHistTotalName;
               std::string fHistEscapingName;
+              std::string fHistZposName;
               if(fParticleNameFilter.empty())
               {
                   fHistTotalName = "hTotalSecondaries";
                   fHistEscapingName = "hTotalSecondariesEscaping";
+                  fHistZposName = "fHistZpos";
+                  zpos = true;
               }
               else {
                   std::string s = particleName;
@@ -29,13 +32,20 @@ public:
               }
               fHistTotal = std::make_unique<TH1D>(fHistTotalName.c_str(),fHistTotalName.c_str(), 30000, 0, 3e6);
               fHistEscaping = std::make_unique<TH1D>(fHistEscapingName.c_str(),fHistEscapingName.c_str(), 30000, 0, 3e6);
+              if(true == zpos){
+                fHistZpos = std::make_unique<TH1D>(fHistZposName.c_str(),fHistZposName.c_str(), 180000, 0, 3000.0000);
+                fHistZpos->SetDirectory(0);
+                }
 
               fHistTotal->SetDirectory(0);
               fHistEscaping->SetDirectory(0);
 
+
         }
 
     void RegisterCreation(const G4Track* track) {
+        if( G4TrackStatus::fStopAndKill == track->GetTrackStatus() ) return;
+        if( nullptr != fHistZpos.get() ) fHistZpos->Fill(track->GetPosition().z()/CLHEP::mm - 3000.0000);
         if (track->GetParentID() > 0) { // Secundario
             if (fParticleNameFilter.empty() || track->GetDefinition()->GetParticleName() == fParticleNameFilter) {
                 fTotalSecondaries++;
@@ -75,6 +85,7 @@ public:
         f->cd();
         fHistTotal->Write();
         fHistEscaping->Write();
+        if( nullptr != fHistZpos.get() ) fHistZpos->Write();
     }
 
 
@@ -91,6 +102,8 @@ private:
 
     std::unique_ptr<TH1D> fHistTotal;
     std::unique_ptr<TH1D> fHistEscaping;
+    std::unique_ptr<TH1D> fHistZpos;
+    bool zpos = false;
 };
 
 #endif
